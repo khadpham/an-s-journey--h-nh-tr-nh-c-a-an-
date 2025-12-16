@@ -77,24 +77,32 @@ const GameSwitches = ({ onWin, onFail }: { onWin: (opt: boolean) => void, onFail
                             <div key={k} className="relative flex flex-col items-center group">
                                 <div 
                                     onClick={() => toggle(k)}
-                                    className={`relative w-24 h-40 rounded bg-slate-800 shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)] border-2 border-slate-600 flex flex-col items-center justify-between p-2 cursor-pointer transition-all duration-200 ${isOn ? 'border-emerald-500/50' : ''}`}
+                                    className={`relative w-28 h-48 rounded-xl shadow-[inset_0_2px_15px_rgba(0,0,0,0.8)] border-4 flex flex-col items-center justify-between p-3 cursor-pointer transition-all duration-200 
+                                        ${isOn ? 'bg-slate-800 border-emerald-500/80 shadow-[0_0_20px_rgba(16,185,129,0.3)]' : 'bg-slate-900 border-slate-600'}`}
                                 >
-                                    <div className="w-full flex justify-between px-1"><div className="w-2 h-2 rounded-full bg-slate-600 flex items-center justify-center text-[5px] text-black">+</div><div className="w-2 h-2 rounded-full bg-slate-600 flex items-center justify-center text-[5px] text-black">+</div></div>
+                                    <div className="w-full flex justify-between px-1 opacity-50"><div className="w-2 h-2 rounded-full bg-slate-500 flex items-center justify-center text-[5px] text-black"></div><div className="w-2 h-2 rounded-full bg-slate-500 flex items-center justify-center text-[5px] text-black"></div></div>
                                     
-                                    <div className="w-12 h-24 bg-slate-900 rounded-full relative shadow-inner overflow-hidden">
-                                        <div className={`absolute left-0 w-full h-1/2 bg-gradient-to-b from-slate-600 to-slate-700 rounded-full shadow-lg transition-transform duration-200 ease-out border-t border-slate-500 z-10
-                                            ${isOn ? 'top-0' : 'top-1/2'}
+                                    {/* Toggle Track */}
+                                    <div className="w-16 h-28 bg-black rounded-full relative shadow-inner overflow-hidden border border-slate-700">
+                                        {/* Toggle Thumb */}
+                                        <div className={`absolute left-0 w-full h-1/2 rounded-full shadow-lg transition-transform duration-200 ease-out border-t border-slate-500 z-10 flex items-center justify-center
+                                            ${isOn ? 'top-0 bg-gradient-to-b from-slate-600 to-slate-700' : 'top-1/2 bg-gradient-to-b from-slate-700 to-slate-800'}
                                         `}>
-                                            <div className="w-full h-full flex items-center justify-center">
-                                                <div className={`w-2 h-2 rounded-full ${isOn ? 'bg-emerald-400 shadow-[0_0_5px_#34d399]' : 'bg-red-500 shadow-[0_0_5px_#f87171]'}`}></div>
+                                            <div className={`w-8 h-8 rounded-full shadow-lg transition-all duration-300 border-2 border-black/20
+                                                ${isOn ? 'bg-emerald-400 shadow-[0_0_15px_#34d399]' : 'bg-rose-500 shadow-[0_0_15px_#f43f5e]'}`}>
                                             </div>
                                         </div>
                                     </div>
+                                    
+                                    {/* Text Label */}
+                                    <div className={`font-black text-sm uppercase tracking-widest transition-colors ${isOn ? 'text-emerald-400' : 'text-rose-500'}`}>
+                                        {isOn ? 'BẬT' : 'TẮT'}
+                                    </div>
 
-                                    <div className="w-full flex justify-between px-1"><div className="w-2 h-2 rounded-full bg-slate-600 flex items-center justify-center text-[5px] text-black">+</div><div className="w-2 h-2 rounded-full bg-slate-600 flex items-center justify-center text-[5px] text-black">+</div></div>
+                                    <div className="w-full flex justify-between px-1 opacity-50"><div className="w-2 h-2 rounded-full bg-slate-500 flex items-center justify-center text-[5px] text-black"></div><div className="w-2 h-2 rounded-full bg-slate-500 flex items-center justify-center text-[5px] text-black"></div></div>
                                 </div>
-                                <div className="mt-3 font-mono text-xl font-bold text-slate-300 bg-slate-800 px-4 py-1 rounded border border-slate-600">
-                                    SW-{k}
+                                <div className="mt-4 font-mono text-2xl font-black text-slate-300 bg-slate-900 px-6 py-2 rounded border border-slate-700 shadow-lg">
+                                    {k}
                                 </div>
                             </div>
                         );
@@ -121,11 +129,12 @@ const GameSwitches = ({ onWin, onFail }: { onWin: (opt: boolean) => void, onFail
                 {[1, 2, 3, 4].map(n => {
                     const st = switches[mapping[n]];
                     
-                    let bulbColor = 'text-slate-700';
-                    let glassEffect = 'bg-slate-800';
+                    // Logic Update: Cold/Off bulbs are darker
+                    let bulbColor = 'text-slate-800 drop-shadow-none'; // Dark grey for off
+                    let glassEffect = 'bg-slate-950 border-slate-800'; // Dark background
                     let heatEffect = '';
                     let statusText = 'TỐI - LẠNH';
-                    let statusColor = 'text-slate-500';
+                    let statusColor = 'text-slate-600';
 
                     if (st.on) {
                         bulbColor = 'text-yellow-200 drop-shadow-[0_0_20px_rgba(253,224,71,0.8)]';
@@ -133,21 +142,22 @@ const GameSwitches = ({ onWin, onFail }: { onWin: (opt: boolean) => void, onFail
                         statusText = 'SÁNG - NÓNG';
                         statusColor = 'text-yellow-400';
                     } else if (st.heat >= 15) {
-                        bulbColor = 'text-red-900 drop-shadow-[0_0_10px_rgba(239,68,68,0.5)]';
-                        glassEffect = 'bg-red-900/10 border-red-500/30';
+                        // Off but Hot -> Red tint but dark bulb
+                        bulbColor = 'text-red-900 drop-shadow-[0_0_10px_rgba(239,68,68,0.3)]';
+                        glassEffect = 'bg-red-950/50 border-red-900/50';
                         heatEffect = 'animate-pulse';
                         statusText = 'TỐI - NÓNG';
                         statusColor = 'text-red-500';
                     } else if (st.heat > 0) {
                         bulbColor = 'text-orange-900';
-                        glassEffect = 'bg-orange-900/10 border-orange-500/30';
+                        glassEffect = 'bg-orange-950/50 border-orange-900/50';
                         statusText = 'TỐI - ẤM';
-                        statusColor = 'text-orange-400';
+                        statusColor = 'text-orange-600';
                     }
 
                     return (
                         <div key={n} className={`flex flex-col gap-4 w-full p-4 rounded-xl border border-slate-700 items-center bg-slate-900/50 backdrop-blur`}>
-                             <div className={`relative w-full aspect-square rounded-full border-4 ${glassEffect} flex items-center justify-center shadow-inner`}>
+                             <div className={`relative w-full aspect-square rounded-full border-4 ${glassEffect} flex items-center justify-center shadow-inner transition-colors duration-500`}>
                                  <span className={`text-6xl md:text-8xl transition-all duration-1000 ${bulbColor} ${heatEffect}`}>💡</span>
                                  <div className="absolute bottom-2 font-mono text-xs text-slate-500 font-bold">L-{n}</div>
                              </div>

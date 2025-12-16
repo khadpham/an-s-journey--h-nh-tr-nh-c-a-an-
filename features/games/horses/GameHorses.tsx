@@ -97,7 +97,7 @@ const GameHorses = ({ onWin, onFail }: { onWin: (opt: boolean) => void, onFail: 
 
     const toggleTrack = (id: number) => {
         if (track.includes(id)) {
-            // Remove from track
+            // Remove from track (return to stable)
             setTrack(track.filter(x => x !== id));
         } else {
             // Add to track
@@ -135,32 +135,52 @@ const GameHorses = ({ onWin, onFail }: { onWin: (opt: boolean) => void, onFail: 
             onFail();
         }
     };
+
+    // Helper component for Horse Button (shared style)
+    const renderHorseButton = (id: number, inTrack: boolean) => (
+        <button 
+            key={id} 
+            onClick={() => toggleTrack(id)}
+            className={`w-12 h-12 md:w-14 md:h-14 rounded-xl border-2 font-black flex items-center justify-center text-lg md:text-xl transition-all duration-300 shadow-lg active:scale-95
+                ${inTrack 
+                    ? 'bg-rose-600 border-rose-400 text-white hover:bg-rose-500 animate-in zoom-in' 
+                    : 'bg-slate-800 border-slate-600 text-slate-300 hover:border-emerald-400 hover:text-white hover:bg-slate-700 hover:shadow-[0_0_15px_rgba(52,211,153,0.3)]'
+                }`}
+        >
+            {id}
+        </button>
+    );
     
     return (
         <div className="flex flex-col h-full w-full pt-4 px-4 overflow-y-auto custom-scrollbar relative bg-[#020617]">
              <div className="absolute inset-0 bg-slate-900 [mask-image:linear-gradient(to_bottom,transparent,black)] pointer-events-none opacity-20" style={{backgroundImage: 'radial-gradient(#334155 1px, transparent 1px)', backgroundSize: '24px 24px'}}></div>
 
             {/* TRACK AREA - STICKY TOP */}
-            {/* Landscape Optimization: Single line, opacity 0.5 for background */}
-            <div className="w-full bg-slate-900/95 landscape:bg-slate-900/50 backdrop-blur border border-rose-900/30 rounded-xl p-4 landscape:py-1 mb-6 flex flex-col md:flex-row landscape:flex-row items-center justify-between gap-4 shrink-0 sticky top-0 z-20 shadow-xl transition-all">
+            <div className="w-full bg-slate-900/95 landscape:bg-slate-900/80 backdrop-blur border border-rose-900/30 rounded-xl p-4 landscape:py-2 mb-6 flex flex-col md:flex-row landscape:flex-row items-center justify-between gap-4 shrink-0 sticky top-0 z-30 shadow-2xl ring-1 ring-white/5">
                 <div className="flex items-center gap-4 landscape:mr-4">
                      <span className="text-sm md:text-lg landscape:text-sm font-bold text-rose-500 uppercase tracking-widest">BỆ PHÓNG</span>
                 </div>
-                <div className="flex gap-3 items-center">
-                    {/* Render slots from Track Array */}
-                    {track.map(id => (
-                        <button key={id} onClick={() => toggleTrack(id)} className="w-12 h-12 landscape:w-10 landscape:h-10 bg-rose-600 rounded border border-rose-500 flex items-center justify-center font-bold text-white text-xl landscape:text-lg hover:bg-rose-500 shadow-lg animate-in zoom-in duration-200">
-                            {id}
-                        </button>
-                    ))}
-                    {/* Render Empty slots */}
+                
+                {/* Visual Track Area */}
+                <div className="flex gap-2 items-center bg-black/40 p-2 rounded-xl border border-white/5">
+                    {/* Render Selected Horses */}
+                    {track.map(id => renderHorseButton(id, true))}
+                    
+                    {/* Render Empty Placeholders */}
                     {Array.from({length: 5 - track.length}).map((_,i) => (
-                        <div key={i} className="w-12 h-12 landscape:w-10 landscape:h-10 border-2 border-dashed border-slate-700 rounded bg-slate-900/50 flex items-center justify-center text-xs text-slate-700">
+                        <div key={`empty-${i}`} className="w-12 h-12 md:w-14 md:h-14 rounded-xl border-2 border-dashed border-slate-800 bg-slate-900/30 flex items-center justify-center text-xs text-slate-700 select-none">
                             {i+1+track.length}
                         </div>
                     ))}
                 </div>
-                <button onClick={runRace} className="w-full md:w-auto landscape:w-auto px-8 py-3 landscape:py-2 landscape:ml-4 bg-rose-600 hover:bg-rose-500 text-white font-black rounded uppercase shadow-lg border-b-4 border-rose-800 active:border-b-0 active:translate-y-1 transition-all">
+
+                <button 
+                    onClick={runRace} 
+                    className={`w-full md:w-auto landscape:w-auto px-8 py-3 landscape:py-2 landscape:ml-4 font-black rounded uppercase shadow-lg border-b-4 active:border-b-0 active:translate-y-1 transition-all
+                    ${track.length >= 2 
+                        ? 'bg-rose-600 hover:bg-rose-500 text-white border-rose-800 shadow-rose-900/20' 
+                        : 'bg-slate-800 text-slate-500 border-slate-700 cursor-not-allowed'}`}
+                >
                     ĐUA
                 </button>
             </div>
@@ -168,30 +188,16 @@ const GameHorses = ({ onWin, onFail }: { onWin: (opt: boolean) => void, onFail: 
             {/* Main Content - Split for Landscape */}
             <div className="flex flex-col md:flex-row landscape:flex-row gap-6 mb-8 w-full max-w-6xl mx-auto h-full landscape:h-auto">
                 {/* STABLE AREA */}
-                {/* Optimized to be a strict 5x5 Grid */}
-                <div className="w-full md:w-1/2 landscape:w-1/2 bg-slate-900/50 border border-emerald-900/30 rounded-xl p-4 shadow-xl backdrop-blur shrink-0">
+                <div className="w-full md:w-1/2 landscape:w-1/2 bg-slate-900/50 border border-emerald-900/30 rounded-xl p-4 shadow-xl backdrop-blur shrink-0 transition-all duration-300">
                     <div className="text-sm md:text-lg font-bold text-emerald-500 uppercase mb-4 border-b border-emerald-900/30 pb-2 flex items-center gap-2">
                         <span>🐉 TRẠI RỒNG 🐉</span>
                     </div>
-                    {/* FIXED: 5x5 Grid Layout */}
-                    <div className="grid grid-cols-5 gap-2 justify-items-center">
-                        {horses.map(h => {
-                            const isSelected = track.includes(h.id);
-                             return (
-                                 <button 
-                                    key={h.id} 
-                                    onClick={() => !isSelected && toggleTrack(h.id)}
-                                    disabled={isSelected}
-                                    className={`w-10 h-10 md:w-12 md:h-12 rounded-lg border font-black flex items-center justify-center text-lg md:text-xl transition-all duration-200
-                                        ${isSelected 
-                                            ? 'bg-slate-900 border-slate-800 text-slate-700 opacity-30 scale-90 cursor-not-allowed' 
-                                            : 'border-slate-700 bg-slate-800 text-slate-300 hover:border-emerald-400 hover:text-white hover:scale-110 hover:bg-slate-700 hover:shadow-[0_0_15px_rgba(52,211,153,0.3)]'
-                                        }`}
-                                 >
-                                     {h.id}
-                                 </button>
-                             );
-                        })}
+                    {/* UPDATED LAYOUT: Flex wrap to allow items to shift left */}
+                    <div className="flex flex-wrap gap-3 justify-center md:justify-start content-start">
+                        {horses
+                            .filter(h => !track.includes(h.id)) // Only show horses NOT in track
+                            .map(h => renderHorseButton(h.id, false))
+                        }
                     </div>
                 </div>
 
@@ -208,17 +214,17 @@ const GameHorses = ({ onWin, onFail }: { onWin: (opt: boolean) => void, onFail: 
                              {logs.map((l, i) => {
                                  if (l.type === 'item') {
                                      return (
-                                         <div key={`item-${i}`} className="bg-amber-900/20 text-amber-500 p-2 border-l-2 border-amber-500 mb-1">
+                                         <div key={`item-${i}`} className="bg-amber-900/20 text-amber-500 p-2 border-l-2 border-amber-500 mb-1 rounded-r">
                                              &gt; HỆ THỐNG: {l.msg}
                                          </div>
                                      )
                                  }
                                  return (
-                                     <div key={l.id} className="flex flex-col border-b border-slate-900 pb-2 mb-2">
+                                     <div key={l.id} className="flex flex-col border-b border-slate-900 pb-2 mb-2 animate-in slide-in-from-right duration-300">
                                          <span className="text-indigo-400 font-bold text-lg mb-1 uppercase tracking-wide">ĐUA #{String(l.id).padStart(2,'0')}:</span>
                                          <div className="flex flex-wrap gap-3">
                                              {l.rank.map((id, rank) => (
-                                                 <div key={rank} className={`flex flex-col items-center justify-center w-10 ${rank === 0 ? 'text-yellow-400' : rank === 1 ? 'text-slate-300' : rank === 2 ? 'text-amber-700' : 'text-slate-600'}`}>
+                                                 <div key={rank} className={`flex flex-col items-center justify-center w-10 ${rank === 0 ? 'text-yellow-400 drop-shadow' : rank === 1 ? 'text-slate-300' : rank === 2 ? 'text-amber-700' : 'text-slate-600'}`}>
                                                      <span className="text-2xl font-black">{id}</span>
                                                  </div>
                                              ))}
@@ -234,18 +240,21 @@ const GameHorses = ({ onWin, onFail }: { onWin: (opt: boolean) => void, onFail: 
                         <div className="text-xs font-bold text-indigo-400 uppercase mb-3 tracking-widest">KẾT QUẢ TOP 3</div>
                         <div className="flex gap-2 mb-3">
                             {(['first', 'second', 'third'] as const).map((k, i) => (
-                                <div key={k} className="flex-1">
+                                <div key={k} className="flex-1 relative group">
+                                    <div className={`absolute -top-2 left-2 text-[10px] font-bold px-1 bg-slate-900 ${i===0?'text-yellow-500':i===1?'text-slate-400':'text-amber-600'}`}>
+                                        {i===0 ? '🥇 NHẤT' : i===1 ? '🥈 NHÌ' : '🥉 BA'}
+                                    </div>
                                     <input 
                                         type="number" 
-                                        className="w-full bg-black border border-slate-700 rounded p-2 text-center text-white font-bold focus:border-indigo-500 outline-none placeholder-slate-700"
+                                        className="w-full bg-black border border-slate-700 rounded p-3 text-center text-white font-bold focus:border-indigo-500 outline-none placeholder-slate-800 transition-colors"
                                         value={top3[k] || ''}
-                                        placeholder={`#${i+1}`}
+                                        placeholder="#"
                                         onChange={(e) => setTop3({...top3, [k]: parseInt(e.target.value) || null})}
                                     />
                                 </div>
                             ))}
                         </div>
-                        <button onClick={submit} className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded shadow-lg uppercase tracking-wider text-sm">
+                        <button onClick={submit} className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded shadow-lg uppercase tracking-wider text-sm active:scale-95 transition-transform">
                             XÁC NHẬN
                         </button>
                     </div>

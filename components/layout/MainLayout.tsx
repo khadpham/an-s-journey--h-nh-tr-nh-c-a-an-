@@ -57,10 +57,22 @@ export const Sidebar = () => {
                 
                 {/* Inner Content Wrapper: This handles the background and scrolling */}
                 <div className="flex-1 flex flex-col w-full h-full bg-slate-900 overflow-hidden relative border-r border-slate-800">
-                    <div className="p-6 border-b border-slate-800 flex justify-between items-center h-[60px] md:h-[80px] shrink-0">
-                        <div className={`${isSidebarCollapsed ? 'hidden' : 'block'} overflow-hidden`}>
-                            <h1 className="text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400 whitespace-nowrap uppercase">Hành Trình của An</h1>
-                            <div className="text-[10px] text-slate-500 font-bold mt-1 tracking-widest">v58.0 APP</div>
+                    
+                    {/* Header Section with Icon */}
+                    <div className={`p-4 border-b border-slate-800 flex items-center h-[70px] md:h-[90px] shrink-0 ${isSidebarCollapsed ? 'justify-center' : 'justify-between'}`}>
+                        <div className="flex items-center gap-3 overflow-hidden">
+                            {/* Icon - Always visible */}
+                            <img 
+                                src="/Icon512.png" 
+                                alt="Logo" 
+                                className="w-10 h-10 md:w-12 md:h-12 rounded-xl shadow-lg shadow-indigo-500/20 shrink-0 object-cover border border-slate-700" 
+                            />
+                            
+                            {/* Text - Hidden when collapsed */}
+                            <div className={`${isSidebarCollapsed ? 'hidden' : 'block'} overflow-hidden transition-all duration-300`}>
+                                <h1 className="text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400 whitespace-nowrap uppercase">Hành Trình của An</h1>
+                                <div className="text-[10px] text-slate-500 font-bold mt-1 tracking-widest">v58.0 APP</div>
+                            </div>
                         </div>
                         {/* Close button: Mobile only */}
                         <button onClick={toggleSidebar} className="md:hidden text-slate-400 text-2xl">&times;</button>
@@ -112,10 +124,10 @@ export const Sidebar = () => {
                                             {d.part}
                                         </div>
                                     )}
-                                    <div onClick={handleClick} className={`flex items-center px-3 py-3 md:py-2 rounded-md transition-all mb-1 gap-3 ${st}`}>
+                                    <div onClick={handleClick} className={`flex items-center px-3 py-3 md:py-2 rounded-md transition-all mb-1 gap-3 ${st} ${isSidebarCollapsed ? 'justify-center' : ''}`}>
                                         <div className="flex items-center gap-1 min-w-[24px] justify-center">
                                             <span className="text-xl md:text-lg">{ic}</span>
-                                            {gameIndex && <span className="text-[10px] font-bold opacity-70 translate-y-1">{gameIndex}.</span>}
+                                            {gameIndex && !isSidebarCollapsed && <span className="text-[10px] font-bold opacity-70 translate-y-1">{gameIndex}.</span>}
                                         </div>
                                         <span className={`truncate text-sm ${isSidebarCollapsed ? 'hidden' : 'block'}`}>{shortTitle}</span>
                                     </div>
@@ -190,6 +202,7 @@ export const HeaderMobile = ({ chapterTitle, toggleStoryPanel }: { chapterTitle?
     return (
         <div className="md:hidden fixed top-0 w-full h-14 landscape:h-10 landscape:min-h-0 bg-slate-900/95 backdrop-blur border-b border-slate-800 z-50 flex items-center justify-between px-4 shadow-lg shrink-0">
             <div className="flex items-center gap-2 overflow-hidden mr-2 cursor-pointer" onClick={toggleStoryPanel}>
+                <img src="/Icon512.png" alt="Icon" className="w-6 h-6 rounded-md shadow-sm" />
                 <span className="font-bold text-indigo-400 text-sm landscape:text-xs truncate uppercase whitespace-nowrap">Hành Trình của An</span>
                 {chapterTitle && (
                     <>

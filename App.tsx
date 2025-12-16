@@ -37,8 +37,8 @@ const StoryAccordion = ({ expanded, setExpanded }: StoryAccordionProps) => {
     const startGame = () => {
         setExpanded(false);
         if (story.type === 'text') {
-           const nextIdx = idx + 1;
-           goToChapter(nextIdx);
+          const nextIdx = idx + 1;
+          goToChapter(nextIdx);
         }
     };
 
@@ -70,21 +70,21 @@ const StoryAccordion = ({ expanded, setExpanded }: StoryAccordionProps) => {
 
     return (
         <div className={`bg-slate-900 border-b border-slate-800 shrink-0 z-40 shadow-md relative transition-all duration-300 ${expanded ? '' : 'overflow-hidden'}`}>
-             {/* Header Bar 
-                 - Desktop & Mobile Portrait: Visible (flex)
-                 - Mobile Landscape Only (<768px width): HIDDEN (max-md:landscape:hidden)
-             */}
-             <div className="flex justify-between items-center p-4 max-md:landscape:hidden bg-slate-800 border-b border-slate-700 cursor-pointer hover:bg-slate-750 transition" onClick={() => setExpanded(!expanded)}>
-                 <div className="flex items-center gap-3">
-                     <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest border border-indigo-500/30 px-2 py-0.5 rounded bg-indigo-500/10">
+            {/* Header Bar 
+                - Desktop & Mobile Portrait: Visible (flex)
+                - Mobile Landscape Only (<768px width): HIDDEN (max-md:landscape:hidden)
+            */}
+            <div className="flex justify-between items-center p-4 max-md:landscape:hidden bg-slate-800 border-b border-slate-700 cursor-pointer hover:bg-slate-750 transition" onClick={() => setExpanded(!expanded)}>
+                <div className="flex items-center gap-3">
+                    <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest border border-indigo-500/30 px-2 py-0.5 rounded bg-indigo-500/10">
                         {getPartLabel()}
-                     </span>
-                     <h3 className="text-xl font-serif font-bold text-white truncate">{story.title}</h3>
-                 </div>
-                 <div className="flex items-center gap-4">
-                     {isLevelDone && <span className="text-emerald-400 text-xs font-bold border border-emerald-500/30 px-2 py-0.5 rounded bg-emerald-500/10">ĐÃ HOÀN THÀNH</span>}
-                     <span className="text-slate-400 hover:text-white transition text-sm">{expanded ? '▲ Thu gọn' : '▼ Mở rộng'}</span>
-                 </div>
+                    </span>
+                    <h3 className="text-xl font-serif font-bold text-white truncate">{story.title}</h3>
+                </div>
+                <div className="flex items-center gap-4">
+                    {isLevelDone && <span className="text-emerald-400 text-xs font-bold border border-emerald-500/30 px-2 py-0.5 rounded bg-emerald-500/10">ĐÃ HOÀN THÀNH</span>}
+                    <span className="text-slate-400 hover:text-white transition text-sm">{expanded ? '▲ Thu gọn' : '▼ Mở rộng'}</span>
+                </div>
             </div>
             
             {/* Content Area 
@@ -101,10 +101,10 @@ const StoryAccordion = ({ expanded, setExpanded }: StoryAccordionProps) => {
                     
                     <div className="text-slate-300 text-sm leading-relaxed mb-4 font-light">{story.text}</div>
                     {story.rules && (
-                         <div className="mb-6 p-4 bg-slate-950/50 rounded-xl border border-slate-800">
-                             <h4 className="text-xs font-black text-amber-500 uppercase tracking-widest mb-2">HƯỚNG DẪN NHIỆM VỤ</h4>
-                             <div className="text-sm text-slate-400 leading-relaxed space-y-2" dangerouslySetInnerHTML={{__html: story.rules}} />
-                         </div>
+                        <div className="mb-6 p-4 bg-slate-950/50 rounded-xl border border-slate-800">
+                            <h4 className="text-xs font-black text-amber-500 uppercase tracking-widest mb-2">HƯỚNG DẪN NHIỆM VỤ</h4>
+                            <div className="text-sm text-slate-400 leading-relaxed space-y-2" dangerouslySetInnerHTML={{__html: story.rules}} />
+                        </div>
                     )}
                     <button onClick={startGame} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-lg shadow-lg transition-transform active:scale-95">
                         {getButtonText()}
@@ -189,17 +189,17 @@ const SuccessScreen = ({ onNext, opt, isEnding }: { onNext: () => void, opt: boo
 
     return (
         <div className="absolute inset-0 z-50 bg-[#020617] flex items-center justify-center p-4 animate-in zoom-in duration-300">
-             {/* Main Container: Flex Col on Portrait, Row on Landscape */}
-             <div className="flex flex-col landscape:flex-row items-center justify-center landscape:justify-between w-full h-full max-w-6xl gap-6 landscape:gap-12 landscape:px-10">
+            {/* Main Container: Flex Col on Portrait, Row on Landscape */}
+            <div className="flex flex-col landscape:flex-row items-center justify-center landscape:justify-between w-full h-full max-w-6xl gap-6 landscape:gap-12 landscape:px-10">
                 
                 {/* 
-                   UPDATED LAYOUT FOR LANDSCAPE: 
-                   Left Side (Landscape) = Next Story (Larger)
-                   Right Side (Landscape) = Victory Info (Smaller)
+                  UPDATED LAYOUT FOR LANDSCAPE: 
+                  Left Side (Landscape) = Next Story (Larger)
+                  Right Side (Landscape) = Victory Info (Smaller)
                 */}
 
                 {/* 1. NEXT CHAPTER PREVIEW (Portrait: Bottom / Landscape: Left) */}
-                 {nextStory && (
+                {nextStory && (
                     <div className="order-2 landscape:order-1 bg-slate-800/50 border border-slate-700 p-6 rounded-2xl w-full landscape:w-2/3 landscape:h-auto backdrop-blur-sm relative overflow-hidden group flex flex-col max-h-[40vh] landscape:max-h-[80vh] shadow-2xl">
                         <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
                         <div className="shrink-0 mb-4 border-b border-slate-700 pb-2">
@@ -280,13 +280,13 @@ const GameArea = () => {
         // If we win the last game, do NOT show the normal success overlay.
         // Instead, complete the level and immediately jump to the ending.
         if (story.id === 'c8') {
-             completeLevel(opt);
-             // Force jump to next chapter immediately (idx + 1), bypassing state validation check delay
-             // Pass true to force the jump
-             setTimeout(() => {
-                 goToChapter(idx + 1, true); 
-             }, 100);
-             return; 
+            completeLevel(opt);
+            // Force jump to next chapter immediately (idx + 1), bypassing state validation check delay
+            // Pass true to force the jump
+            setTimeout(() => {
+                goToChapter(idx + 1, true); 
+            }, 100);
+            return; 
         }
 
         completeLevel(opt); 
@@ -304,8 +304,8 @@ const GameArea = () => {
         playSound('fail');
         showToast("Thất bại! Đang reset...", "error");
         setTimeout(() => {
-             resetLevelItems(idx);
-             setGameKey(prev => prev + 1); 
+            resetLevelItems(idx);
+            setGameKey(prev => prev + 1); 
         }, 2000);
     };
 
@@ -324,6 +324,23 @@ const GameArea = () => {
 
     const renderGame = () => {
         if (isEnding) return null;
+
+        // NEW: Show Cover Art for Intro Chapter
+        if (story.id === 'intro') {
+             return (
+                 <div className="flex items-center justify-center h-full w-full p-6 animate-in fade-in duration-1000">
+                     <div className="relative w-full max-w-[500px] aspect-square rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(79,70,229,0.15)] border border-slate-800/80 group">
+                         <img 
+                             src="/Icon512.png" 
+                             alt="Hành Trình Của An Art" 
+                             className="w-full h-full object-cover hover:scale-105 transition-transform duration-700 ease-in-out" 
+                         />
+                         {/* Subtle overlay */}
+                         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 to-transparent pointer-events-none"></div>
+                     </div>
+                 </div>
+             );
+        }
         
         switch(story.game) {
             case 'switches': return <GameSwitches onWin={handleWin} onFail={handleFail} />;
@@ -377,8 +394,8 @@ const GameArea = () => {
                     {/* Added max-h and flex-col for internal scrolling */}
                     <div className="bg-slate-900 border border-slate-700 w-full max-w-lg rounded-xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
                         <div className="flex justify-between items-center p-4 border-b border-slate-700 bg-slate-800 shrink-0">
-                             <h3 className="text-lg font-bold text-amber-500">Trung Tâm Chiến Thuật</h3>
-                             <button onClick={() => setHintModalOpen(false)} className="text-slate-400 hover:text-white text-2xl">&times;</button>
+                            <h3 className="text-lg font-bold text-amber-500">Trung Tâm Chiến Thuật</h3>
+                            <button onClick={() => setHintModalOpen(false)} className="text-slate-400 hover:text-white text-2xl">&times;</button>
                         </div>
                         {/* Internal Scrolling Content */}
                         <div className="p-4 space-y-4 overflow-y-auto custom-scrollbar">
@@ -442,7 +459,7 @@ const GameArea = () => {
                         toast.type === 'warning' ? 'border-orange-500' :
                         'border-indigo-500'
                     }`}>
-                       {toast.msg}
+                      {toast.msg}
                     </div>
                 )}
             </div>
