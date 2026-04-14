@@ -68,7 +68,7 @@ export const STORY: StoryPart[] = [
         text: 'Ngay khi qua cầu an toàn, Lữ Khách Bí Ẩn cười nham hiểm và hiện nguyên hình là Hắc Pháp Sư Muội Than! Hắn giật lấy mảnh bản đồ từ tay An rồi biến mất vào khu rừng ma thuật. Khu rừng này có 5 bụi cây lượng tử, và hắn chỉ có thể lẩn trốn trong đó. Hắn có thói quen kỳ lạ: mỗi khi bạn kiểm tra một hộp, hắn bắt buộc phải nhảy sang một hộp ngay bên cạnh.', 
         hint: 'Hãy chú ý đến màu sắc (hoặc số chẵn lẻ) của các hộp. Nếu hắn đang ở hộp số 2 (Chẵn), sau khi nhảy hắn buộc phải sang hộp 1 hoặc 3 (Lẻ).', 
         hint2: 'Gâu! Tớ vừa thấy hắn ở hộp số 2. Lần tới hắn chắc chắn không ở hộp số 2 hay số 4 đâu, mà phải ở một hộp Lẻ!', 
-        guide: 'Đừng đoán mò. Hãy dùng một lượt kiểm tra ở giữa để xác định hoặc dồn hắn về một phía. Nếu không thấy hắn, ta có thể loại trừ một nửa khả năng.', 
+        guide: 'Đừng đoán mò. Hãy dùng một lượt kiểm tra vị trí Chẵn/Lẻ hiện tại để xác định hoặc dồn hắn về một phía. Nếu không thấy hắn, ta có thể loại trừ một nửa khả năng.', 
         math: 'Tính chẵn lẻ (Parity). Vị trí của mục tiêu luôn đảo chiều (Chẵn -> Lẻ -> Chẵn) sau mỗi lượt. Kiểm tra theo chuỗi tăng dần (2, 3, 4...) có thể dồn mục tiêu vào góc chết.', 
         rules: '<p>1. Hắc Pháp Sư trốn trong 1 trong 5 hộp (đánh số 1-5).</p><p>2. <strong>Mỗi lượt</strong>, bạn được phép chọn mở 1 hộp để kiểm tra.</p><p>3. <strong>Sau mỗi lần kiểm tra</strong>, hắn SẼ di chuyển sang hộp liền kề (VD: từ 2 sang 1 hoặc 3).</p><p>4. <strong>Nhiệm vụ:</strong> Tìm ra vị trí chính xác của hắn trong tối đa 10 lần thử.</p>' 
     },
