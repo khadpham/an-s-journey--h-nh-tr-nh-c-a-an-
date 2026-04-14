@@ -126,3 +126,50 @@ export const COMPANIONS = {
   bear: { name: 'Gấu', icon: '🐻', color: 'text-amber-600' },
   robo: { name: 'Robo', icon: '🤖', color: 'text-cyan-400' }
 };
+
+export interface TutorialStep {
+  target?: string;
+  title: string;
+  content: string;
+  position?: 'top' | 'bottom' | 'left' | 'right' | 'center';
+}
+
+export const TUTORIALS: Record<string, TutorialStep[]> = {
+  switches: [
+    { title: "Bước 1: Bật công tắc", content: "Nhấn vào công tắc để BẬT hoặc TẮT. Bật ít nhất 2 công tắc trở lên và chờ chúng nóng lên.", position: "top" },
+    { title: "Bước 2: Chờ nguội", content: "Nhấn 'CHỜ 10 PHÚT' để mô phỏng thời gian trôi qua. Đèn đang BẬT sẽ nóng, đèn TẮT sẽ nguội.", position: "top" },
+    { title: "Bước 3: Vào phòng", content: "Nhấn 'VÀO PHÒNG' để kiểm tra. Bạn chỉ được vào ĐÚNG 1 LẦN!", position: "top" },
+    { title: "Bước 4: Quan sát", content: "Đèn SÁNG + NÓNG = đang BẬT. Đèn TỐI + NÓNG = đã TẮT nhưng còn nhiệt. Đèn TỐI + LẠNH = chưa bao giờ bật.", position: "bottom" },
+  ],
+  jugs: [
+    { title: "Cách đổ dầu", content: "Nhấn vào bình nguồn (có dầu), sau đó nhấn vào bình đích để đổ. Dầu sẽ chảy cho đến khi nguồn cạn hoặc đích đầy.", position: "top" },
+    { title: "Mẹo", content: "Hãy tìm cách tạo ra 4L! Gợi ý: 5L - 3L = 2L. Hãy thử đổ đầy bình 5L rồi rót sang bình 3L.", position: "bottom" },
+  ],
+  graph: [
+    { title: "Mục tiêu", content: "Vẽ một nét đi qua TẤT CẢ các đường, không nhấc tay, không vẽ lại đường đã đi.", position: "top" },
+    { title: "Cách chơi", content: "Nhấn vào một điểm để bắt đầu, sau đó nhấn vào các điểm kề để di chuyển. Nhấn vào điểm trước đó để quay lại.", position: "bottom" },
+  ],
+  river: [
+    { title: "Chọn người", content: "Nhấn vào nhân vật để đưa lên cầu (tối đa 2 người). Phải có đèn 🏮 ở bờ đó mới được đi!", position: "top" },
+    { title: "Di chuyển", content: "Nhấn nút GO để di chuyển. Thời gian = người đi CHẬM NHẤT trong lượt đó.", position: "bottom" },
+  ],
+  cat: [
+    { title: "Quy tắc", content: "Mỗi lần bạn mở một hộp, kẻ địch di chuyển sang hộp liền kề. Hắn không thể đứng yên!", position: "top" },
+    { title: "Chiến thuật", content: "Nếu không tìm thấy, hắn đang ở vị trí có thể nhảy đến. Sau mỗi lần kiểm tra, vị trí của hắn đổi từ Chẵn sang Lẻ hoặc ngược lại.", position: "bottom" },
+  ],
+  spider: [
+    { title: "Mục tiêu", content: "Bắt con nhện bằng cách di chuyển cùng vị trí với nó trong 15 bước hoặc ít hơn.", position: "top" },
+    { title: "Cách chơi", content: "Nhấn vào điểm nút kề để di chuyển. Nhện sẽ đi sau bạn, luôn cố gắng ra xa bạn nhất có thể.", position: "bottom" },
+    { title: "Mẹo", content: "Đừng đuổi theo đuôi! Hãy chặn đầu bằng cách đi tới các giao lộ chính.", position: "top" },
+  ],
+  horses: [
+    { title: "Cách đua", content: "Chọn 2-5 con rồng từ Trại Rồng, đưa lên bệ phóng, rồi nhấn 'ĐUA'.", position: "top" },
+    { title: "Thông tin", content: "Sau mỗi đua, bạn chỉ biết thứ tự (nhất, nhì, ba...), không biết thời gian cụ thể.", position: "bottom" },
+    { title: "Mẹo", content: "Dùng tính bắc cầu: Nếu A nhanh hơn B, và B nhanh hơn C, thì A nhanh hơn C. Loại bỏ đám chậm!", position: "top" },
+  ],
+  balls: [
+    { title: "Cách cân", content: "Chọn 'Đĩa Trái' hoặc 'Đĩa Phải', rồi nhấn vào các bóng để đặt lên. Nhấn 'CÂN NGAY' để xem kết quả.", position: "top" },
+    { title: "Kết quả", content: "Cân bằng = bóng giả không có trên đĩa. Nghiêng = bóng giả nằm trên đĩa nghiêng xuống (nặng) hoặc nhẹ hơn tùy chiều.", position: "bottom" },
+    { title: "Mẹo", content: "Lần cân đầu: đặt 4 vs 4. Nếu cân bằng, bóng giả ở 4 quả chưa cân. Nếu lệch, bóng giả ở 8 quả đang cân!", position: "top" },
+  ],
+};

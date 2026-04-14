@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Component, ReactNode } from 'react';
 import { GameProvider, useGame } from './context/GameContext';
 import { STORY, COMPANIONS } from './config/gameContent';
 import GameSwitches from './features/games/switches/GameSwitches';
@@ -11,6 +11,66 @@ import GameHorses from './features/games/horses/GameHorses';
 import GameBalls from './features/games/balls/GameBalls';
 
 import { Sidebar, HeaderMobile } from './components/layout/MainLayout';
+import { TutorialModal } from './components/TutorialModal';
+
+interface ErrorBoundaryProps {
+  children: ReactNode;
+  fallback?: ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error?: Error;
+}
+
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('Game Error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback || (
+        <div className="flex flex-col items-center justify-center h-screen bg-slate-950 text-white p-8">
+          <div className="text-6xl mb-4">⚠️</div>
+          <h1 className="text-2xl font-bold text-red-400 mb-2">Đã xảy ra lỗi!</h1>
+          <p className="text-slate-400 mb-4 text-center">{this.state.error?.message}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-lg"
+          >
+            Tải lại trang
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+const LoadingScreen = () => (
+  <div className="flex flex-col items-center justify-center h-screen bg-slate-950 text-white">
+    <div className="text-6xl mb-8 animate-bounce">⚙️</div>
+    <h1 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400 uppercase tracking-widest mb-2">
+      Hành Trình của An
+    </h1>
+    <p className="text-slate-500 text-sm">Đang tải...</p>
+    <div className="mt-8 flex gap-2">
+      <div className="w-3 h-3 bg-indigo-500 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
+      <div className="w-3 h-3 bg-indigo-500 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
+      <div className="w-3 h-3 bg-indigo-500 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
+    </div>
+  </div>
+);
 
 interface StoryAccordionProps {
     expanded: boolean;
@@ -451,29 +511,69 @@ const GameArea = () => {
                 </div>
             )}
             
-            <div className="fixed top-5 right-5 z-[200] flex flex-col gap-2 pointer-events-none">
-                {toast && (
-                    <div className={`toast-enter pointer-events-auto px-6 py-3 rounded-lg shadow-xl text-white font-bold text-sm flex items-center gap-3 border-l-4 bg-slate-800 ${
-                        toast.type === 'error' ? 'border-rose-500' : 
-                        toast.type === 'event' ? 'border-amber-400 bg-gradient-to-r from-indigo-950 to-slate-900' : 
-                        toast.type === 'warning' ? 'border-orange-500' :
-                        'border-indigo-500'
-                    }`}>
-                      {toast.msg}
-                    </div>
-                )}
-            </div>
-        </div>
-    );
+<div className="fixed top-5 right-5 z-[200] flex flex-col gap-2 pointer-events-none">
+        {toast && (
+          <div className={`toast-enter pointer-events-auto px-6 py-3 rounded-lg shadow-xl text-white font-bold text-sm flex items-center gap-3 border-l-4 bg-slate-800 ${
+            toast.type === 'error' ? 'border-rose-500' :
+            toast.type === 'event' ? 'border-amber-400 bg-gradient-to-r from-indigo-950 to-slate-900' :
+            toast.type === 'warning' ? 'border-orange-500' :
+            'border-indigo-500'
+          }`}>
+            {toast.msg}
+          </div>
+        )}
+      </div>
+
+      {/* Tutorial Modal - Shows on first time playing each game */}
+      {story?.game && <TutorialModal gameId={story.game} />}
+    </div>
+  );
 };
 
 const Main = () => {
-    // Lift state for Story Panel to control it from HeaderMobile
-    const [storyExpanded, setStoryExpanded] = useState(true);
-    const { idx } = useGame();
-    const story = STORY[idx];
+  // Lift state for Story Panel to control it from HeaderMobile
+  const [storyExpanded, setStoryExpanded] = useState(true);
+  const [showHelp, setShowHelp] = useState(false);
+  const { idx, toggleSound } = useGame();
+  const story = STORY[idx];
 
-    return (
+  // Global keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore if user is typing in an input
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      switch (e.key.toLowerCase()) {
+        case '?':
+          e.preventDefault();
+          setShowHelp(prev => !prev);
+          break;
+        case 'm':
+          e.preventDefault();
+          toggleSound();
+          break;
+        case 's':
+          e.preventDefault();
+          setStoryExpanded(prev => !prev);
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [toggleSound]);
+
+  const helpShortcuts = [
+    { key: '?', description: 'Hiện/Ẩn phím tắt' },
+    { key: 'M', description: 'Bật/Tắt âm thanh' },
+    { key: 'S', description: 'Thu gọn/Mở rộng cốt truyện' },
+    { key: 'Enter', description: 'Tiếp tục (khi đã hoàn thành màn)' },
+    { key: 'R', description: 'Reset màn chơi (trong game)' },
+  ];
+
+  return (
         <div className="flex h-screen bg-slate-950 text-slate-200">
             <Sidebar />
             <div className="flex-1 flex flex-col relative pt-14 md:pt-0 overflow-hidden h-full">
@@ -487,18 +587,62 @@ const Main = () => {
                     expanded={storyExpanded}
                     setExpanded={setStoryExpanded}
                 />
-                <GameArea />
+<GameArea />
+
+      {/* Help Modal - Keyboard Shortcuts */}
+      {showHelp && (
+        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={() => setShowHelp(false)}>
+          <div className="bg-slate-900 border border-indigo-500/30 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in duration-200" onClick={e => e.stopPropagation()}>
+            <div className="bg-gradient-to-r from-indigo-900/50 to-slate-900 p-4 border-b border-slate-800 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="text-2xl">⌨️</div>
+                <div>
+                  <div className="text-[10px] text-indigo-400 uppercase tracking-widest font-bold">Phím tắt</div>
+                  <div className="text-white font-bold">Keyboard Shortcuts</div>
+                </div>
+              </div>
+              <button onClick={() => setShowHelp(false)} className="text-slate-400 hover:text-white text-2xl leading-none">&times;</button>
             </div>
+            <div className="p-4 space-y-3">
+              {helpShortcuts.map((shortcut, i) => (
+                <div key={i} className="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg border border-slate-700/50">
+                  <span className="text-slate-400 text-sm">{shortcut.description}</span>
+                  <kbd className="px-3 py-1.5 bg-slate-700 border border-slate-600 rounded text-indigo-300 font-mono text-sm font-bold shadow-inner">
+                    {shortcut.key}
+                  </kbd>
+                </div>
+              ))}
+            </div>
+            <div className="p-4 border-t border-slate-800 text-center">
+              <p className="text-slate-500 text-xs">Nhấn ? hoặc click bên ngoài để đóng</p>
+            </div>
+          </div>
         </div>
-    );
+      )}
+    </div>
+  </div>
+  );
 };
 
 const App = () => {
-    return (
-        <GameProvider>
-            <Main />
-        </GameProvider>
-    );
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
+  return (
+    <ErrorBoundary>
+      <GameProvider>
+        <Main />
+      </GameProvider>
+    </ErrorBoundary>
+  );
 };
 
 export default App;

@@ -18,6 +18,10 @@ interface GameContextType extends SaveData {
   playSound: (type: 'click'|'win'|'fail'|'silent') => void;
   statusText: string;
   setStatusText: (text: string) => void;
+  soundEnabled: boolean;
+  toggleSound: () => void;
+  markTutorialSeen: (gameId: string) => void;
+  isTutorialNeeded: (gameId: string) => boolean;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -30,7 +34,9 @@ const getInitialState = (): SaveData => ({
   unlockedCompanions: [],
   inventory: [],
   usedSkills: {},
-  usedItems: {}
+  usedItems: {},
+  tutorialSeen: {},
+  achievements: []
 });
 
 export const GameProvider = ({ children }: { children: ReactNode }) => {
@@ -39,6 +45,7 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [audioCtx, setAudioCtx] = useState<AudioContext | null>(null);
   const [statusText, setStatusText] = useState("PLAYING");
+  const [soundEnabled, setSoundEnabled] = useState(true);
 
   useEffect(() => {
     loadGame();
@@ -51,7 +58,7 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
   }, [state.idx]);
 
   const playSound = (type: 'click'|'win'|'fail'|'silent') => {
-    if (type === 'silent') return;
+    if (type === 'silent' || !soundEnabled) return;
     let ctx = audioCtx;
     if (!ctx) {
       ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -209,10 +216,34 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
 
   const toggleSidebar = () => setIsSidebarCollapsed(!isSidebarCollapsed);
 
+  const toggleSound = () => {
+    setSoundEnabled(prev => {
+      const newVal = !prev;
+      if (newVal && audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return newVal;
+    });
+  };
+
+  const markTutorialSeen = (gameId: string) => {
+    setState(prev => {
+      if (prev.tutorialSeen[gameId]) return prev;
+      const next = { ...prev, tutorialSeen: { ...prev.tutorialSeen, [gameId]: true } };
+      saveGameInternal(next);
+      return next;
+    });
+  };
+
+  const isTutorialNeeded = (gameId: string) => {
+    return !state.tutorialSeen[gameId];
+  };
+
   return (
-    <GameContext.Provider value={{ 
-      ...state, loadGame, saveGame, resetJourney, resetLevelItems, goToChapter, completeLevel, 
-      useItem, useSkill, showToast, toast, toggleSidebar, isSidebarCollapsed, playSound, statusText, setStatusText
+<GameContext.Provider value={{
+      ...state, loadGame, saveGame, resetJourney, resetLevelItems, goToChapter, completeLevel,
+      useItem, useSkill, showToast, toast, toggleSidebar, isSidebarCollapsed, playSound, statusText, setStatusText,
+      soundEnabled, toggleSound, markTutorialSeen, isTutorialNeeded
     }}>
       {children}
     </GameContext.Provider>

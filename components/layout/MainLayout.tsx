@@ -3,14 +3,21 @@ import { useGame } from '../../context/GameContext';
 import { STORY, ITEMS } from '../../config/gameContent';
 
 export const Sidebar = () => {
-    const { 
-        progress, idx, gears, inventory, resetJourney, goToChapter, 
-        toggleSidebar, isSidebarCollapsed, usedItems, useItem 
-    } = useGame();
-    
-    const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const {
+    progress, idx, gears, inventory, resetJourney, goToChapter,
+    toggleSidebar, isSidebarCollapsed, usedItems, useItem,
+    soundEnabled, toggleSound
+  } = useGame();
 
-    let lastPart = '';
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+
+  // Calculate stats
+  const totalChapters = STORY.filter(s => s.type === 'game').length;
+  const completedChapters = Object.values(progress).filter(p => p.done).length;
+  const optimizedChapters = Object.values(progress).filter(p => p.opt).length;
+  const completionPercent = totalChapters > 0 ? Math.round((completedChapters / totalChapters) * 100) : 0;
+
+  let lastPart = '';
     
     // UPDATED: Mobile collapsed state now forces w-0, no border.
     // Desktop: w-72 or w-[80px].
@@ -169,16 +176,45 @@ export const Sidebar = () => {
                                     <div className="flex items-center space-x-2"><span className="text-xl">⚙️</span><span className="text-xs font-bold text-amber-400 uppercase">Bánh Răng</span></div>
                                     <span className="text-xl font-black text-white">{gears}/8</span>
                                 </>
-                            )}
-                        </div>
-                        
-                        <button 
-                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowResetConfirm(true); }} 
-                            className={`w-full py-2 bg-red-900/30 hover:bg-red-900/50 border border-red-800 text-red-400 text-[10px] font-bold rounded uppercase tracking-wider transition flex items-center justify-center gap-2 cursor-pointer ${isSidebarCollapsed ? 'px-0' : ''}`}
-                            title="Xóa hành trình"
-                        >
-                            <span>🗑️</span> <span className={isSidebarCollapsed ? 'hidden' : 'inline'}>XÓA HÀNH TRÌNH</span>
-                        </button>
+)}
+  </div>
+
+  {/* Stats Section */}
+  {!isSidebarCollapsed && (
+    <div className="bg-slate-800/50 rounded-lg border border-slate-700/50 p-3 mb-3">
+      <div className="flex justify-between items-center mb-2">
+        <span className="text-[10px] text-slate-500 font-bold uppercase">Tiến Độ</span>
+        <span className="text-xs font-bold text-emerald-400">{completionPercent}%</span>
+      </div>
+      {/* Progress Bar */}
+      <div className="w-full h-2 bg-slate-900 rounded-full overflow-hidden mb-2">
+        <div
+          className="h-full bg-gradient-to-r from-emerald-600 to-cyan-500 transition-all duration-500 rounded-full"
+          style={{ width: `${completionPercent}%` }}
+        />
+      </div>
+      <div className="flex justify-between text-[10px] text-slate-500">
+        <span>Hoàn thành: <span className="text-emerald-400 font-bold">{completedChapters}/{totalChapters}</span></span>
+        <span>Tối ưu: <span className="text-amber-400 font-bold">{optimizedChapters}/{totalChapters}</span></span>
+      </div>
+    </div>
+  )}
+
+  <button
+  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowResetConfirm(true); }}
+  className={`w-full py-2 bg-red-900/30 hover:bg-red-900/50 border border-red-800 text-red-400 text-[10px] font-bold rounded uppercase tracking-wider transition flex items-center justify-center gap-2 cursor-pointer ${isSidebarCollapsed ? 'px-0' : ''}`}
+  title="Xóa hành trình"
+>
+  <span>🗑️</span> <span className={isSidebarCollapsed ? 'hidden' : 'inline'}>XÓA HÀNH TRÌNH</span>
+</button>
+
+    <button
+  onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleSound(); }}
+  className={`w-full py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-400 text-[10px] font-bold rounded uppercase tracking-wider transition flex items-center justify-center gap-2 cursor-pointer ${isSidebarCollapsed ? 'px-0' : ''}`}
+  title={soundEnabled ? "Tắt âm thanh" : "Bật âm thanh"}
+>
+  <span>{soundEnabled ? '🔊' : '🔇'}</span> <span className={isSidebarCollapsed ? 'hidden' : 'inline'}>{soundEnabled ? 'TẮT ÂM' : 'BẬT ÂM'}</span>
+</button>
                     </div>
                 </div>
                 
@@ -197,31 +233,34 @@ export const Sidebar = () => {
 };
 
 export const HeaderMobile = ({ chapterTitle, toggleStoryPanel }: { chapterTitle?: string, toggleStoryPanel?: () => void }) => {
-    const { gears, inventory, toggleSidebar } = useGame();
-    
-    return (
-        <div className="md:hidden fixed top-0 w-full h-14 landscape:h-10 landscape:min-h-0 bg-slate-900/95 backdrop-blur border-b border-slate-800 z-50 flex items-center justify-between px-4 shadow-lg shrink-0">
-            <div className="flex items-center gap-2 overflow-hidden mr-2 cursor-pointer" onClick={toggleStoryPanel}>
-                <img src="/Icon512.png" alt="Icon" className="w-6 h-6 rounded-md shadow-sm" />
-                <span className="font-bold text-indigo-400 text-sm landscape:text-xs truncate uppercase whitespace-nowrap">Hành Trình của An</span>
-                {chapterTitle && (
-                    <>
-                        <span className="hidden landscape:inline text-slate-600">|</span>
-                        <span className="hidden landscape:inline text-white text-xs truncate font-serif italic hover:text-indigo-300 transition-colors">
-                            {chapterTitle}
-                        </span>
-                        <span className="hidden landscape:inline text-indigo-500 text-[10px] animate-pulse">▼</span>
-                    </>
-                )}
-            </div>
-            
-            <div className="flex items-center gap-3 shrink-0">
-                <div className="flex gap-1 mr-2">
-                     {ITEMS.map(it => inventory.includes(it.id) && <div key={it.id} className="text-sm landscape:text-xs">{it.icon}</div>)}
-                </div>
-                <span className="text-amber-400 text-xs font-bold">{gears} ⚙️</span>
-                <button onClick={toggleSidebar} className="text-2xl landscape:text-lg p-2 active:scale-95 transition-transform">☰</button>
-            </div>
+  const { gears, inventory, toggleSidebar, soundEnabled, toggleSound } = useGame();
+
+  return (
+    <div className="md:hidden fixed top-0 w-full h-14 landscape:h-10 landscape:min-h-0 bg-slate-900/95 backdrop-blur border-b border-slate-800 z-50 flex items-center justify-between px-4 shadow-lg shrink-0">
+      <div className="flex items-center gap-2 overflow-hidden mr-2 cursor-pointer" onClick={toggleStoryPanel}>
+        <img src="/Icon512.png" alt="Icon" className="w-6 h-6 rounded-md shadow-sm" />
+        <span className="font-bold text-indigo-400 text-sm landscape:text-xs truncate uppercase whitespace-nowrap">Hành Trình của An</span>
+        {chapterTitle && (
+          <>
+            <span className="hidden landscape:inline text-slate-600">|</span>
+            <span className="hidden landscape:inline text-white text-xs truncate font-serif italic hover:text-indigo-300 transition-colors">
+              {chapterTitle}
+            </span>
+            <span className="hidden landscape:inline text-indigo-500 text-[10px] animate-pulse">▼</span>
+          </>
+        )}
+      </div>
+
+      <div className="flex items-center gap-2 shrink-0">
+        <div className="flex gap-1">
+          {ITEMS.map(it => inventory.includes(it.id) && <div key={it.id} className="text-sm landscape:text-xs">{it.icon}</div>)}
         </div>
-    );
+        <button onClick={toggleSound} className="text-lg p-1 active:scale-95 transition-transform" title={soundEnabled ? "Tắt âm" : "Bật âm"}>
+          {soundEnabled ? '🔊' : '🔇'}
+        </button>
+        <span className="text-amber-400 text-xs font-bold">{gears} ⚙️</span>
+        <button onClick={toggleSidebar} className="text-2xl landscape:text-lg p-2 active:scale-95 transition-transform">☰</button>
+      </div>
+    </div>
+  );
 };
