@@ -83,42 +83,42 @@ const GameRiver = ({ onWin, onFail }: { onWin: (opt: boolean) => void, onFail: (
         }, 1000);
     };
 
-    const renderChar = (id: Char, isOnBridge: boolean = false) => {
-        const char = CHARS.find(c => c.id === id)!;
-        const isSel = selected.includes(id);
-        return (
-            <div 
-                key={id}
-                onClick={() => toggleSelect(id)}
-                className={`
-                    relative flex flex-col items-center justify-center 
-                    w-12 h-12 md:w-16 md:h-20 rounded-lg border-2 cursor-pointer transition-all duration-300
-                    ${isOnBridge 
-                        ? `bg-black/50 ${char.neon}` 
-                        : isSel ? `bg-slate-800 ${char.neon} scale-105` : 'bg-slate-900 border-slate-700 hover:border-slate-500'}
-                `}
-            >
-                <div className="text-xl md:text-3xl mb-1">{char.icon}</div>
-                <div className={`text-[9px] md:text-[10px] font-bold ${char.color}`}>{char.speed}s</div>
-            </div>
-        );
-    };
+const renderChar = (id: Char, isOnBridge: boolean = false) => {
+  const char = CHARS.find(c => c.id === id)!;
+  const isSel = selected.includes(id);
+  return (
+    <div
+      key={id}
+      onClick={() => toggleSelect(id)}
+      className={`
+      relative flex flex-col items-center justify-center
+      w-16 h-18 rounded-xl border-2 cursor-pointer transition-all duration-300 shrink-0
+      ${isOnBridge
+        ? `bg-black/50 ${char.neon}`
+        : isSel ? `bg-slate-800 ${char.neon} scale-110` : 'bg-slate-900 border-slate-600 hover:border-slate-400 hover:scale-105'}
+      `}
+    >
+      <div className="text-2xl md:text-3xl mb-1">{char.icon}</div>
+      <div className={`text-[10px] font-bold ${char.color}`}>{char.speed}s</div>
+    </div>
+  );
+};
 
-    const renderGoButton = () => (
-        !moving && selected.length > 0 ? (
-            <button 
-                onClick={go}
-                className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-orange-600 hover:bg-orange-500 border-4 border-orange-400 shadow-[0_0_30px_rgba(249,115,22,0.6)] flex flex-col items-center justify-center text-white font-black text-sm active:scale-95 transition-transform animate-in fade-in zoom-in"
-            >
-                <span className="text-xl">⚡</span>
-                GO
-            </button>
-        ) : (
-             <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border-2 border-slate-800 bg-black/50 flex items-center justify-center text-[10px] text-slate-600 text-center p-2 italic font-bold">
-                 CHỌN NGƯỜI
-             </div>
-        )
-    );
+const renderGoButton = () => (
+  !moving && selected.length > 0 ? (
+    <button
+      onClick={go}
+      className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-orange-600 hover:bg-orange-500 border-4 border-orange-400 shadow-[0_0_35px_rgba(249,115,22,0.6)] flex flex-col items-center justify-center text-white font-black text-sm active:scale-95 transition-transform animate-in fade-in zoom-in"
+    >
+      <span className="text-2xl">⚡</span>
+      GO
+    </button>
+  ) : (
+    <div className="w-20 h-20 md:w-24 md:h-24 rounded-full border-2 border-slate-800 bg-black/50 flex items-center justify-center text-[10px] text-slate-600 text-center p-2 italic font-bold">
+      CHỌN NGƯỜI
+    </div>
+  )
+);
 
     return (
         <div className="flex flex-col items-center h-full w-full pt-4 px-2 select-none overflow-y-auto pb-4 bg-black">
@@ -130,78 +130,78 @@ const GameRiver = ({ onWin, onFail }: { onWin: (opt: boolean) => void, onFail: (
                 </button>
             </div>
 
-            {/* Container - Landscape Mode logic applied here via landscape: class */}
-            <div className="flex flex-col landscape:flex-row md:flex-row w-full max-w-5xl md:h-[340px] landscape:h-[300px] bg-[#050b14] rounded-2xl border border-slate-800 overflow-hidden relative min-h-[500px] landscape:min-h-0 md:min-h-0 shadow-2xl">
-                
-                {/* Left Bank */}
-                <div className="flex-1 landscape:flex-none md:flex-none md:w-1/3 landscape:w-1/3 border-b landscape:border-b-0 md:border-b-0 md:border-r landscape:border-r border-slate-800 bg-slate-900/50 p-2 flex flex-col relative min-h-[120px]">
-                    <div className="text-[10px] font-bold text-slate-500 uppercase mb-2 text-center">BỜ VỰC (START)</div>
-                    <div className="flex flex-wrap content-start gap-2 justify-center">
-                        {left.map(id => !selected.includes(id) && renderChar(id))}
-                    </div>
-                </div>
+{/* Container - Landscape Mode logic applied here via landscape: class */}
+  <div className="flex flex-col landscape:flex-row md:flex-row w-full max-w-6xl md:h-[380px] landscape:h-[320px] bg-[#050b14] rounded-2xl border border-slate-800 overflow-hidden relative min-h-[520px] landscape:min-h-0 md:min-h-0 shadow-2xl">
 
-                {/* Abyss / Bridge Area */}
-                <div className="flex-[2] bg-black relative flex flex-row landscape:flex-col md:flex-col min-h-[220px] overflow-hidden">
-                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-900 via-black to-black opacity-80"></div>
-                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
+    {/* Left Bank */}
+    <div className="flex-none w-[100px] landscape:flex-none md:flex-none md:w-[140px] landscape:w-[140px] border-b landscape:border-b-0 md:border-b-0 md:border-r landscape:border-r border-slate-800 bg-slate-900/50 p-3 flex flex-col relative min-h-[140px]">
+      <div className="text-[10px] font-bold text-cyan-500 uppercase mb-3 text-center">BỜ VỰC</div>
+      <div className="grid grid-cols-2 gap-2 justify-items-center content-start flex-1">
+        {left.map(id => !selected.includes(id) && renderChar(id))}
+      </div>
+    </div>
 
-                    {/* The Bridge - Laser Beam */}
-                    <div className="absolute w-1 h-full landscape:w-full landscape:h-1 md:w-full md:h-1 bg-cyan-500/20 left-1/2 -translate-x-1/2 landscape:left-0 landscape:translate-x-0 landscape:top-1/2 landscape:-translate-y-1/2 md:left-0 md:translate-x-0 md:top-1/2 md:-translate-y-1/2 blur-sm"></div>
-                    <div className="absolute w-[2px] h-full landscape:w-full landscape:h-[2px] md:w-full md:h-[2px] bg-cyan-400 left-1/2 -translate-x-1/2 landscape:left-0 landscape:translate-x-0 landscape:top-1/2 landscape:-translate-y-1/2 md:left-0 md:translate-x-0 md:top-1/2 md:-translate-y-1/2 shadow-[0_0_15px_#22d3ee]"></div>
+    {/* Abyss / Bridge Area */}
+    <div className="flex-1 bg-black relative flex flex-row landscape:flex-col md:flex-col min-h-[260px] overflow-hidden">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-900 via-black to-black opacity-80"></div>
+      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
 
-                    {/* Bridge Lane */}
-                    <div className="flex-1 relative flex flex-col landscape:flex-row md:flex-row items-center justify-center z-10">
-                        
-                        {/* Lamp Indicator */}
-                        {!moving && (
-                            <div className={`absolute transition-all duration-300 z-10
-                                landscape:top-1/3 landscape:left-auto landscape:right-auto md:top-1/3 md:left-auto md:right-auto
-                                ${lampLeft 
-                                    ? 'top-4 landscape:top-auto landscape:left-4 md:top-auto md:left-4 left-1/2 -translate-x-1/2 landscape:translate-x-0 md:translate-x-0' 
-                                    : 'bottom-4 landscape:bottom-auto landscape:right-4 md:bottom-auto md:right-4 left-1/2 -translate-x-1/2 landscape:translate-x-0 md:translate-x-0'}
-                            `}>
-                                <div className="text-2xl animate-bounce bg-black rounded-full p-1 border border-amber-500 shadow-[0_0_20px_#f59e0b]">🏮</div>
-                            </div>
-                        )}
+      {/* The Bridge - Laser Beam */}
+      <div className="absolute w-1 h-full landscape:w-full landscape:h-1 md:w-full md:h-1 bg-cyan-500/20 left-1/2 -translate-x-1/2 landscape:left-0 landscape:translate-x-0 landscape:top-1/2 landscape:-translate-y-1/2 md:left-0 md:translate-x-0 md:top-1/2 md:-translate-y-1/2 blur-sm"></div>
+      <div className="absolute w-[3px] h-full landscape:w-full landscape:h-[3px] md:w-full md:h-[3px] bg-cyan-400 left-1/2 -translate-x-1/2 landscape:left-0 landscape:translate-x-0 landscape:top-1/2 landscape:-translate-y-1/2 md:left-0 md:translate-x-0 md:top-1/2 md:-translate-y-1/2 shadow-[0_0_20px_#22d3ee]"></div>
 
-                        {/* Moving Group */}
-                        <div className={`absolute flex items-center gap-2 transition-all duration-1000 ease-linear z-30
-                            ${moving ? 'opacity-100' : 'opacity-0'}
-                            ${lampLeft 
-                                ? (moving ? 'landscape:translate-x-[150%] md:translate-x-[150%] translate-y-[150%] landscape:translate-y-0 md:translate-y-0' : 'translate-x-0 translate-y-0') 
-                                : (moving ? 'landscape:-translate-x-[150%] md:-translate-x-[150%] -translate-y-[150%] landscape:translate-y-0 md:translate-y-0' : 'translate-x-0 translate-y-0')}
-                        `}>
-                             <div className="text-2xl bg-black rounded-full border border-amber-500">🏮</div>
-                             {selected.map(id => <div key={id} className="text-3xl filter drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]">{CHARS.find(c=>c.id===id)?.icon}</div>)}
-                        </div>
-                        
-                        {/* Static Selection Display on Bridge */}
-                        {!moving && selected.length > 0 && (
-                            <div className={`absolute flex gap-1 transition-all duration-300 items-center justify-center z-20
-                                 ${lampLeft 
-                                    ? 'landscape:top-1/2 landscape:-translate-y-1/2 landscape:left-16 md:top-1/2 md:-translate-y-1/2 md:left-16 top-16 left-1/2 -translate-x-1/2 flex-col landscape:flex-row md:flex-row' 
-                                    : 'landscape:top-1/2 landscape:-translate-y-1/2 landscape:right-16 md:top-1/2 md:-translate-y-1/2 md:right-16 bottom-16 left-1/2 -translate-x-1/2 flex-col-reverse landscape:flex-row-reverse md:flex-row-reverse'}
-                            `}>
-                                {selected.map(id => renderChar(id, true))}
-                            </div>
-                        )}
-                    </div>
+      {/* Bridge Lane */}
+      <div className="flex-1 relative flex flex-col landscape:flex-row md:flex-row items-center justify-center z-10">
 
-                    {/* Button Container */}
-                    <div className="w-24 landscape:w-full md:w-full landscape:h-auto md:h-auto shrink-0 flex items-center justify-center bg-slate-900/80 p-2 border-l landscape:border-l-0 md:border-l-0 landscape:border-t md:border-t border-slate-800 z-20 backdrop-blur">
-                         {renderGoButton()}
-                    </div>
-                </div>
+        {/* Lamp Indicator */}
+        {!moving && (
+          <div className={`absolute transition-all duration-300 z-10
+            landscape:top-1/3 landscape:left-auto landscape:right-auto md:top-1/3 md:left-auto md:right-auto
+            ${lampLeft
+              ? 'top-4 landscape:top-auto landscape:left-4 md:top-auto md:left-4 left-1/2 -translate-x-1/2 landscape:translate-x-0 md:translate-x-0'
+              : 'bottom-4 landscape:bottom-auto landscape:right-4 md:bottom-auto md:right-4 left-1/2 -translate-x-1/2 landscape:translate-x-0 md:translate-x-0'}
+          `}>
+            <div className="text-3xl animate-bounce bg-black rounded-full p-2 border-2 border-amber-500 shadow-[0_0_25px_#f59e0b]">🏮</div>
+          </div>
+        )}
 
-                {/* Right Bank */}
-                <div className="flex-1 landscape:flex-none md:flex-none md:w-1/3 landscape:w-1/3 border-t landscape:border-t-0 md:border-t-0 landscape:border-l md:border-l border-slate-800 bg-slate-900/50 p-2 flex flex-col relative min-h-[120px]">
-                    <div className="text-[10px] font-bold text-slate-500 uppercase mb-2 text-center">BỜ ĐÍCH (GOAL)</div>
-                    <div className="flex flex-wrap content-start gap-2 justify-center">
-                        {right.map(id => !selected.includes(id) && renderChar(id))}
-                    </div>
-                </div>
-            </div>
+        {/* Moving Group */}
+        <div className={`absolute flex items-center gap-3 transition-all duration-1000 ease-linear z-30
+          ${moving ? 'opacity-100' : 'opacity-0'}
+          ${lampLeft
+            ? (moving ? 'landscape:translate-x-[150%] md:translate-x-[150%] translate-y-[150%] landscape:translate-y-0 md:translate-y-0' : 'translate-x-0 translate-y-0')
+            : (moving ? 'landscape:-translate-x-[150%] md:-translate-x-[150%] -translate-y-[150%] landscape:translate-y-0 md:translate-y-0' : 'translate-x-0 translate-y-0')}
+        `}>
+          <div className="text-3xl bg-black rounded-full border-2 border-amber-500 p-1">🏮</div>
+          {selected.map(id => <div key={id} className="text-4xl filter drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]">{CHARS.find(c=>c.id===id)?.icon}</div>)}
+        </div>
+
+        {/* Static Selection Display on Bridge */}
+        {!moving && selected.length > 0 && (
+          <div className={`absolute flex gap-2 transition-all duration-300 items-center justify-center z-20
+            ${lampLeft
+              ? 'landscape:top-1/2 landscape:-translate-y-1/2 landscape:left-20 md:top-1/2 md:-translate-y-1/2 md:left-20 top-20 left-1/2 -translate-x-1/2 flex-col landscape:flex-row md:flex-row'
+              : 'landscape:top-1/2 landscape:-translate-y-1/2 landscape:right-20 md:top-1/2 md:-translate-y-1/2 md:right-20 bottom-20 left-1/2 -translate-x-1/2 flex-col-reverse landscape:flex-row-reverse md:flex-row-reverse'}
+          `}>
+            {selected.map(id => renderChar(id, true))}
+          </div>
+        )}
+      </div>
+
+      {/* Button Container */}
+      <div className="w-28 landscape:w-full md:w-full landscape:h-auto md:h-auto shrink-0 flex items-center justify-center bg-slate-900/80 p-3 border-l landscape:border-l-0 md:border-l-0 landscape:border-t md:border-t border-slate-800 z-20 backdrop-blur">
+        {renderGoButton()}
+      </div>
+    </div>
+
+    {/* Right Bank */}
+    <div className="flex-none w-[100px] landscape:flex-none md:flex-none md:w-[140px] landscape:w-[140px] border-t landscape:border-t-0 md:border-t-0 landscape:border-l md:border-l border-slate-800 bg-slate-900/50 p-3 flex flex-col relative min-h-[140px]">
+      <div className="text-[10px] font-bold text-emerald-500 uppercase mb-3 text-center">BỜ ĐÍCH</div>
+      <div className="grid grid-cols-2 gap-2 justify-items-center content-start flex-1">
+        {right.map(id => !selected.includes(id) && renderChar(id))}
+      </div>
+    </div>
+  </div>
         </div>
     );
 };

@@ -175,11 +175,69 @@ const StoryAccordion = ({ expanded, setExpanded }: StoryAccordionProps) => {
     );
 };
 
-const SuccessScreen = ({ onNext, opt, isEnding }: { onNext: () => void, opt: boolean, isEnding: boolean }) => {
-    const { gears, resetJourney } = useGame();
+interface HighScoreEntry {
+  gears: number;
+  rank: string;
+  date: string;
+}
 
-    if (isEnding) {
-        let r = 'B', i = '🌱';
+const HighScores = ({ gears, rank }: { gears: number, rank: string }) => {
+  const [scores, setScores] = useState<HighScoreEntry[]>([]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('an_v59_scores');
+    if (saved) {
+      try {
+        setScores(JSON.parse(saved));
+      } catch { setScores([]); }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (gears > 0) {
+      const entry: HighScoreEntry = { gears, rank, date: new Date().toLocaleDateString('vi-VN') };
+      const existing = scores.findIndex(s => s.gears === gears);
+      let newScores = [...scores];
+      if (existing >= 0) {
+        if (rank > newScores[existing].rank) {
+          newScores[existing] = entry;
+        }
+      } else {
+        newScores.push(entry);
+      }
+      newScores.sort((a, b) => b.gears - a.gears);
+      newScores = newScores.slice(0, 5);
+      setScores(newScores);
+      localStorage.setItem('an_v59_scores', JSON.stringify(newScores));
+    }
+  }, [gears]);
+
+  if (scores.length === 0) {
+    return <div className="text-slate-500 text-xs italic">Chưa có dữ liệu</div>;
+  }
+
+  return (
+    <div className="space-y-2">
+      {scores.map((s, i) => (
+        <div key={i} className={`flex justify-between items-center p-2 rounded ${i === 0 ? 'bg-amber-900/30 border border-amber-600/30' : 'bg-slate-800/30'}`}>
+          <div className="flex items-center gap-2">
+            <span className={`font-black ${i === 0 ? 'text-amber-400' : 'text-slate-500'}`}>#{i + 1}</span>
+            <span className="text-amber-400 font-bold">{s.gears} ⚙️</span>
+            <span className={`font-black ${s.rank === 'S+' ? 'text-amber-300' : s.rank === 'S' ? 'text-yellow-400' : s.rank === 'A+' || s.rank === 'A' ? 'text-emerald-400' : 'text-slate-400'}`}>{s.rank}</span>
+          </div>
+          <span className="text-slate-600 text-[10px]">{s.date}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const SuccessScreen = ({ onNext, opt, isEnding }: { onNext: () => void, opt: boolean, isEnding: boolean }) => {
+  const { gears, resetJourney, progress } = useGame();
+
+  if (isEnding) {
+    const optimizedGames = Object.values(progress).filter(p => p.opt).length;
+    let r = 'B', i = '🌱';
         let rClass = "text-3xl landscape:text-2xl font-black text-slate-400 mt-1";
         let tClass = "text-3xl md:text-5xl landscape:text-2xl font-serif font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-cyan-500 mb-2";
         let tText = "BÌNH MINH CHƯA TRỌN";
@@ -207,38 +265,80 @@ const SuccessScreen = ({ onNext, opt, isEnding }: { onNext: () => void, opt: boo
             desc = `Với số lượng Bánh Răng thu thập được (${gears}/8), Cây Đèn Chân Lý lóe lên một tia sáng mạnh mẽ, đủ để phá vỡ khối pha lê và giải thoát cho Cha. Tuy nhiên, năng lượng đó chưa đủ để thanh tẩy hoàn toàn bóng tối.<br><br>Hắc Pháp Sư Muội Than, dù bị thương, đã kịp thời hóa thành một làn khói đen và trốn thoát về phía Bắc. "Ta sẽ trở lại...", tiếng cười của hắn vọng lại trong gió.<br><br>An dìu cha trở về nhà. Dù gia đình đoàn tụ, nhưng An biết rằng, chừng nào chưa thu thập đủ 8 Bánh Răng Vàng để khôi phục toàn bộ sức mạnh của Cây Đèn, Vương Quốc Logic vẫn còn nằm trong mối đe dọa tiềm tàng. Hành trình tạm kết thúc, nhưng thử thách vẫn còn đó.`;
         }
 
-        return (
-            <div className="absolute inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-start pt-10 p-4 animate-in fade-in duration-500 overflow-y-auto">
-                <div className="w-full max-w-2xl flex flex-col items-center min-h-full pb-10">
-                    <div className="text-6xl md:text-8xl landscape:text-5xl mb-4 animate-bounce">{i}</div>
-                    <h2 className={tClass}>{tText}</h2>
-                    <p className="text-slate-400 text-sm mb-6 uppercase tracking-widest">{sText}</p>
-                    
-                    <div className="bg-slate-900 border border-slate-700 p-8 landscape:p-4 rounded-2xl w-full text-center shadow-2xl mb-8">
-                        <div className="flex justify-around items-center mb-6 landscape:mb-3 border-b border-slate-800 pb-6 landscape:pb-3">
-                            <div>
-                                <p className="text-slate-500 text-xs uppercase tracking-widest mb-1">Xếp Hạng</p>
-                                <div className={rClass}>{r}</div>
-                            </div>
-                            <div>
-                                <p className="text-slate-500 text-xs uppercase tracking-widest mb-1">Thu Thập</p>
-                                <div className="text-3xl landscape:text-xl font-black text-slate-200 mt-1">{gears}/8 <span className="text-lg">⚙️</span></div>
-                            </div>
-                        </div>
-                        
-                        <div className="text-slate-300 text-sm leading-relaxed text-justify" dangerouslySetInnerHTML={{__html: desc}} />
-                    </div>
+return (
+    <div className="absolute inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-start pt-10 p-4 animate-in fade-in duration-500 overflow-y-auto">
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        {Array.from({length: 50}).map((_, idx) => (
+          <div key={idx} className="absolute animate-fall" style={{ left: `${Math.random() * 100}%`, animationDelay: `${Math.random() * 2}s`, animationDuration: `${2 + Math.random() * 2}s`, top: '-20px' }}>
+            <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: ['#fbbf24', '#22d3ee', '#a855f7', '#10b981', '#f472b6'][idx % 5] }} />
+          </div>
+        ))}
+      </div>
 
-                    <button 
-                        onClick={() => resetJourney(true)} 
-                        className="px-10 py-4 landscape:py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-black rounded-full text-lg hover:scale-105 transition shadow-[0_0_30px_rgba(99,102,241,0.4)] shrink-0"
-                    >
-                        CHƠI LẠI TỪ ĐẦU
-                    </button>
-                </div>
+      <div className="w-full max-w-2xl flex flex-col items-center min-h-full pb-10 relative z-10">
+        <div className="text-6xl md:text-8xl landscape:text-5xl mb-4 animate-bounce">{i}</div>
+        <h2 className={tClass}>{tText}</h2>
+        <p className="text-slate-400 text-sm mb-6 uppercase tracking-widest">{sText}</p>
+
+        <div className="bg-slate-900/80 border border-slate-700 p-6 rounded-2xl w-full mb-6">
+          <div className="flex justify-around items-center mb-4">
+            <div className="text-center">
+              <p className="text-slate-500 text-[10px] uppercase tracking-widest mb-1">Xếp Hạng</p>
+              <div className={rClass}>{r}</div>
             </div>
-        )
-    }
+            <div className="text-center">
+              <p className="text-slate-500 text-[10px] uppercase tracking-widest mb-1">Bánh Răng</p>
+              <div className="text-2xl font-black text-amber-400">{gears}/8 ⚙️</div>
+            </div>
+            <div className="text-center">
+              <p className="text-slate-500 text-[10px] uppercase tracking-widest mb-1">Tối Ưu</p>
+              <div className="text-2xl font-black text-emerald-400">{optimizedGames}/8</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-slate-900 border border-slate-700 p-6 rounded-2xl w-full text-center shadow-2xl mb-6">
+          <div className="text-slate-300 text-sm leading-relaxed text-justify" dangerouslySetInnerHTML={{__html: desc}} />
+        </div>
+
+        <div className="bg-gradient-to-r from-indigo-900/50 to-purple-900/50 border border-indigo-500/30 p-4 rounded-xl w-full text-center mb-6">
+          <p className="text-indigo-300 text-sm font-medium mb-2">✨ Cảm ơn bạn đã trải nghiệm Hành Trình Của An! ✨</p>
+          <p className="text-slate-400 text-xs">Nếu bạn thích game này, hãy chia sẻ với bạn bè nhé!</p>
+        </div>
+
+        <div className="bg-slate-900/60 border border-slate-700 p-4 rounded-xl w-full mb-6">
+          <div className="text-[10px] font-black text-amber-400 uppercase tracking-widest mb-3">📊 Thành Tích Của Bạn</div>
+          <div className="grid grid-cols-3 gap-3 text-center">
+            <div className="bg-slate-800/50 rounded-lg p-2">
+              <div className="text-lg font-black text-emerald-400">{Object.values(progress).filter(p => p.done).length}</div>
+              <div className="text-[10px] text-slate-500">Màn Hoàn Thành</div>
+            </div>
+            <div className="bg-slate-800/50 rounded-lg p-2">
+              <div className="text-lg font-black text-amber-400">{optimizedGames}</div>
+              <div className="text-[10px] text-slate-500">Màn Tối Ưu</div>
+            </div>
+            <div className="bg-slate-800/50 rounded-lg p-2">
+              <div className="text-lg font-black text-cyan-400">{gears}</div>
+              <div className="text-[10px] text-slate-500">Bánh Răng</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-slate-900/60 border border-slate-700 p-4 rounded-xl w-full mb-6">
+          <div className="text-[10px] font-black text-cyan-400 uppercase tracking-widest mb-3">🏆 Bảng Xếp Hạng</div>
+          <HighScores gears={gears} rank={r} />
+        </div>
+
+        <button
+          onClick={() => resetJourney(true)}
+          className="px-10 py-4 landscape:py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-black rounded-full text-lg hover:scale-105 transition shadow-[0_0_30px_rgba(99,102,241,0.4)] shrink-0"
+        >
+          CHƠI LẠI TỪ ĐẦU
+        </button>
+      </div>
+    </div>
+  )
+  }
 
     const { idx } = useGame();
     // Safety check: When winning the last game, idx increments, potentially going out of bounds.

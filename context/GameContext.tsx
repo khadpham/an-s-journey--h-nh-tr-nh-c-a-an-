@@ -22,6 +22,9 @@ interface GameContextType extends SaveData {
   toggleSound: () => void;
   markTutorialSeen: (gameId: string) => void;
   isTutorialNeeded: (gameId: string) => boolean;
+  pendingItems: Record<string, string>;
+  setPendingItem: (itemId: string) => void;
+  clearPendingItem: (levelIdx: number) => void;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -46,6 +49,7 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
   const [audioCtx, setAudioCtx] = useState<AudioContext | null>(null);
   const [statusText, setStatusText] = useState("PLAYING");
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [pendingItems, setPendingItems] = useState<Record<number, string>>({});
 
   useEffect(() => {
     loadGame();
@@ -88,15 +92,15 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
       g.gain.linearRampToValueAtTime(0.001, n + 1);
       osc.start(n);
       osc.stop(n + 1);
-    } else if (type === 'fail') {
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(150, n);
-      osc.frequency.linearRampToValueAtTime(100, n + 0.3);
-      g.gain.setValueAtTime(0.1, n);
-      g.gain.linearRampToValueAtTime(0.001, n + 0.5);
-      osc.start(n);
-      osc.stop(n + 0.5);
-    }
+} else if (type === 'fail') {
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(300, n);
+    osc.frequency.linearRampToValueAtTime(200, n + 0.4);
+    g.gain.setValueAtTime(0.08, n);
+    g.gain.linearRampToValueAtTime(0.001, n + 0.5);
+    osc.start(n);
+    osc.stop(n + 0.5);
+  }
   };
 
   const showToast = (msg: string, type: ToastType = 'info') => {
@@ -134,63 +138,86 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const resetLevelItems = (levelIdx: number) => {
-    setState(prev => {
-        const usedItems = { ...prev.usedItems };
-        if (usedItems[levelIdx]) {
-            delete usedItems[levelIdx];
-        }
-        const next = { ...prev, usedItems };
-        saveGameInternal(next);
-        return next;
-    });
-  };
-
-  const goToChapter = (idx: number, force = false) => {
-    const prev = STORY[idx - 1];
-    // Check if we can jump:
-    // 1. If force is true (system override, e.g. Win Game)
-    // 2. If it's the first chapter
-    // 3. If we are going back
-    // 4. If the previous chapter is done (or is text only)
-    const canJump = force || idx === 0 || idx <= state.idx || (prev && (state.progress[prev.id]?.done || prev.type === 'text'));
-    
-    if (canJump) {
-      setState(prev => {
-        const next = { ...prev, idx };
-        saveGameInternal(next);
-        return next;
-      });
+const resetLevelItems = (levelIdx: number) => {
+  setState(prev => {
+    const usedItems = { ...prev.usedItems };
+    if (usedItems[levelIdx]) {
+      delete usedItems[levelIdx];
     }
-  };
+    const next = { ...prev, usedItems };
+    saveGameInternal(next);
+    return next;
+  });
+  setPendingItems(prev => {
+    const next = { ...prev };
+    delete next[levelIdx];
+    return next;
+  });
+};
 
-  const completeLevel = (opt: boolean) => {
-    const currentStory = STORY[state.idx];
-    const prog = { ...state.progress, [currentStory.id]: { done: true, opt } };
-    
-    let g = 0;
-    Object.values(prog).forEach(v => { if (v.opt) g++; });
+const goToChapter = (idx: number, force = false) => {
+  const prev = STORY[idx - 1];
+  const canJump = force || idx === 0 || idx <= state.idx || (prev && (state.progress[prev.id]?.done || prev.type === 'text'));
 
-    const unlocked = [...state.unlockedCompanions];
-    const inv = [...state.inventory];
-    
-    if (currentStory.id === 'c1' && !unlocked.includes('dog')) { unlocked.push('dog'); showToast("🐕 Chú Chó Vàng đã gia nhập đội!", "event"); }
-    if (currentStory.id === 'c2' && !unlocked.includes('robo')) { unlocked.push('robo'); showToast("🤖 Robo Tin-Tin đã được sửa chữa!", "event"); }
-    if (currentStory.id === 'c3' && !unlocked.includes('bear')) { unlocked.push('bear'); if(!inv.includes('glass')) inv.push('glass'); showToast("🐻 Giáo Sư Gấu đã gia nhập đội!", "event"); showToast("🔍 Đã tìm thấy Kính Lúp!", "event"); }
-    if (currentStory.id === 'c6' && !inv.includes('magnet')) { inv.push('magnet'); showToast("🧲 Đã tìm thấy Nam Châm!", "event"); }
-
+  if (canJump) {
     setState(prev => {
-      const next = { 
-        ...prev, 
-        progress: prog, 
-        gears: g, 
-        unlockedCompanions: unlocked, 
-        inventory: inv 
-      };
+      const next = { ...prev, idx };
+      // If revisiting an already completed level, reset items for that level
+      // This allows player to use items again when replaying
+      const currentStory = STORY[idx];
+      if (currentStory && currentStory.type === 'game' && next.progress[currentStory.id]?.done) {
+        const usedItems = { ...next.usedItems };
+        delete usedItems[idx];
+        next.usedItems = usedItems;
+      }
       saveGameInternal(next);
       return next;
     });
-  };
+  }
+};
+
+const completeLevel = (opt: boolean) => {
+  const currentStory = STORY[state.idx];
+  const prog = { ...state.progress, [currentStory.id]: { done: true, opt } };
+
+  let g = 0;
+  Object.values(prog).forEach(v => { if (v.opt) g++; });
+
+  const unlocked = [...state.unlockedCompanions];
+  const inv = [...state.inventory];
+
+  if (currentStory.id === 'c1' && !unlocked.includes('dog')) { unlocked.push('dog'); showToast("🐕 Chú Chó Vàng đã gia nhập đội!", "event"); }
+  if (currentStory.id === 'c2' && !unlocked.includes('robo')) { unlocked.push('robo'); showToast("🤖 Robo Tin-Tin đã được sửa chữa!", "event"); }
+  if (currentStory.id === 'c3' && !unlocked.includes('bear')) { unlocked.push('bear'); if(!inv.includes('glass')) inv.push('glass'); showToast("🐻 Giáo Sư Gấu đã gia nhập đội!", "event"); showToast("🔍 Đã tìm thấy Kính Lúp!", "event"); }
+  if (currentStory.id === 'c6' && !inv.includes('magnet')) { inv.push('magnet'); showToast("🧲 Đã tìm thấy Nam Châm!", "event"); }
+
+  setState(prev => {
+    const usedItems = { ...prev.usedItems };
+    const pending = pendingItems[prev.idx];
+    if (pending) {
+      if (!usedItems[prev.idx]) usedItems[prev.idx] = {};
+      usedItems[prev.idx][pending] = true;
+    }
+    const next = {
+      ...prev,
+      progress: prog,
+      gears: g,
+      unlockedCompanions: unlocked,
+      inventory: inv,
+      usedItems
+    };
+    saveGameInternal(next);
+    return next;
+  });
+
+  if (pendingItems[state.idx]) {
+    setPendingItems(prev => {
+      const next = { ...prev };
+      delete next[state.idx];
+      return next;
+    });
+  }
+};
 
   const useItem = (itemId: string) => {
     setState(prev => {
@@ -235,15 +262,28 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  const isTutorialNeeded = (gameId: string) => {
-    return !state.tutorialSeen[gameId];
-  };
+const isTutorialNeeded = (gameId: string) => {
+  return !state.tutorialSeen[gameId];
+};
 
-  return (
-<GameContext.Provider value={{
+const setPendingItem = (itemId: string) => {
+  setPendingItems(prev => ({ ...prev, [state.idx]: itemId }));
+};
+
+const clearPendingItem = (levelIdx: number) => {
+  setPendingItems(prev => {
+    const next = { ...prev };
+    delete next[levelIdx];
+    return next;
+  });
+};
+
+return (
+    <GameContext.Provider value={{
       ...state, loadGame, saveGame, resetJourney, resetLevelItems, goToChapter, completeLevel,
       useItem, useSkill, showToast, toast, toggleSidebar, isSidebarCollapsed, playSound, statusText, setStatusText,
-      soundEnabled, toggleSound, markTutorialSeen, isTutorialNeeded
+      soundEnabled, toggleSound, markTutorialSeen, isTutorialNeeded,
+      pendingItems, setPendingItem, clearPendingItem
     }}>
       {children}
     </GameContext.Provider>

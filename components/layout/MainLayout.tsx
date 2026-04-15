@@ -5,7 +5,7 @@ import { STORY, ITEMS } from '../../config/gameContent';
 export const Sidebar = () => {
   const {
     progress, idx, gears, inventory, resetJourney, goToChapter,
-    toggleSidebar, isSidebarCollapsed, usedItems, useItem,
+    toggleSidebar, isSidebarCollapsed, usedItems, setPendingItem, pendingItems,
     soundEnabled, toggleSound
   } = useGame();
 
@@ -147,23 +147,25 @@ export const Sidebar = () => {
                     <div className={`p-4 border-t border-slate-800 bg-slate-900/50 shrink-0 ${isSidebarCollapsed ? 'px-0 md:px-2' : ''}`}>
                         <div className={`text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ${isSidebarCollapsed ? 'hidden' : 'block'}`}>KHO VẬT PHẨM</div>
                         
-                        <div className={`grid gap-2 mb-4 ${isSidebarCollapsed ? 'grid-cols-1 justify-items-center' : 'grid-cols-4'}`}>
-                            {ITEMS.map(it => {
-                                if (!inventory.includes(it.id)) return null;
-                                const currentStory = STORY[idx];
-                                const isUsable = currentStory && currentStory.game === it.gameId;
-                                const isUsed = usedItems[idx]?.[it.id];
-                                const cls = `w-10 h-10 rounded border flex items-center justify-center text-xl transition-all ${
-                                    isUsed ? 'bg-slate-800 border-slate-700 opacity-50 grayscale' : 
-                                    (isUsable ? 'bg-indigo-600 border-indigo-400 cursor-pointer animate-pulse hover:scale-105 shadow-[0_0_10px_rgba(99,102,241,0.5)]' : 'bg-slate-800 border-slate-700 opacity-50')
-                                }`;
-                                return (
-                                    <button key={it.id} className={cls} title={it.name} onClick={() => isUsable && !isUsed && useItem(it.id)}>
-                                        {it.icon}
-                                    </button>
-                                );
-                            })}
-                        </div>
+<div className={`grid gap-2 mb-4 ${isSidebarCollapsed ? 'grid-cols-1 justify-items-center' : 'grid-cols-4'}`}>
+            {ITEMS.map(it => {
+              if (!inventory.includes(it.id)) return null;
+              const currentStory = STORY[idx];
+              const isUsable = currentStory && currentStory.game === it.gameId;
+              const isUsed = usedItems[idx]?.[it.id];
+              const isPending = pendingItems[idx] === it.id;
+              const cls = `w-10 h-10 rounded border flex items-center justify-center text-xl transition-all ${
+                isUsed ? 'bg-slate-800 border-slate-700 opacity-50 grayscale' :
+                isPending ? 'bg-amber-600 border-amber-400 cursor-pointer shadow-[0_0_10px_rgba(245,158,11,0.5)]' :
+                (isUsable ? 'bg-indigo-600 border-indigo-400 cursor-pointer animate-pulse hover:scale-105 shadow-[0_0_10px_rgba(99,102,241,0.5)]' : 'bg-slate-800 border-slate-700 opacity-50')
+              }`;
+              return (
+                <button key={it.id} className={cls} title={it.name} onClick={() => isUsable && !isUsed && !isPending && setPendingItem(it.id)}>
+                  {it.icon}
+                </button>
+              );
+            })}
+          </div>
                         
                         <div className={`flex items-center bg-slate-800 p-3 rounded-lg border border-slate-700 shadow-inner mb-3 ${isSidebarCollapsed ? 'flex-col justify-center p-2 gap-1' : 'justify-between'}`}>
                             {isSidebarCollapsed ? (
@@ -232,7 +234,7 @@ export const Sidebar = () => {
     );
 };
 
-export const HeaderMobile = ({ chapterTitle, toggleStoryPanel }: { chapterTitle?: string, toggleStoryPanel?: () => void }) => {
+export const HeaderMobile = ({ chapterTitle, toggleStoryPanel, toggleHelp }: { chapterTitle?: string, toggleStoryPanel?: () => void, toggleHelp?: () => void }) => {
   const { gears, inventory, toggleSidebar, soundEnabled, toggleSound } = useGame();
 
   return (
@@ -251,13 +253,18 @@ export const HeaderMobile = ({ chapterTitle, toggleStoryPanel }: { chapterTitle?
         )}
       </div>
 
-      <div className="flex items-center gap-2 shrink-0">
+      <div className="flex items-center gap-1 shrink-0">
         <div className="flex gap-1">
           {ITEMS.map(it => inventory.includes(it.id) && <div key={it.id} className="text-sm landscape:text-xs">{it.icon}</div>)}
         </div>
         <button onClick={toggleSound} className="text-lg p-1 active:scale-95 transition-transform" title={soundEnabled ? "Tắt âm" : "Bật âm"}>
           {soundEnabled ? '🔊' : '🔇'}
         </button>
+        {toggleHelp && (
+          <button onClick={toggleHelp} className="w-7 h-7 rounded-full bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-bold flex items-center justify-center active:scale-95 transition-transform" title="Hướng dẫn">
+            i
+          </button>
+        )}
         <span className="text-amber-400 text-xs font-bold">{gears} ⚙️</span>
         <button onClick={toggleSidebar} className="text-2xl landscape:text-lg p-2 active:scale-95 transition-transform">☰</button>
       </div>

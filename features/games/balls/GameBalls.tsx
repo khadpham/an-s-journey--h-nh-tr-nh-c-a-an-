@@ -19,66 +19,82 @@ const catAI_Adapt = (
   currentFakeId: number,
   currentWeight: number,
   weighCount: number,
-  _prevResults: WeighResult[]
+  prevResults: WeighResult[]
 ): { fakeId: number, weight: number } => {
   let fakeId = currentFakeId;
   let weight = currentWeight;
-
-  const isHeavy = weight > 1;
+  const isHeavy = currentWeight > 1;
   const allOnScale = [...leftBalls, ...rightBalls];
   const offScale = Array.from({ length: 12 }, (_, i) => i + 1).filter(id => !allOnScale.includes(id));
 
-  const wL = leftBalls.reduce((a, c) => a + (c === fakeId ? weight : 1), 0);
-  const wR = rightBalls.reduce((a, c) => a + (c === fakeId ? weight : 1), 0);
-  const wouldBeBalanced = Math.abs(wL - wR) < 0.001;
-
   if (weighCount === 0) {
-    if (leftBalls.length >= 2 && wouldBeBalanced) {
-      if (allOnScale.length > 0) {
+    if (leftBalls.length === 6 && rightBalls.length === 6) {
+      if (offScale.length > 0) {
+        fakeId = offScale[Math.floor(Math.random() * offScale.length)];
+      }
+      weight = isHeavy ? 1.1 : 0.9;
+      return { fakeId, weight };
+    }
+
+    if ((leftBalls.length === 4 && rightBalls.length === 4) ||
+        (leftBalls.length === 3 && rightBalls.length === 3)) {
+      if (offScale.includes(fakeId) && allOnScale.length > 0) {
         fakeId = allOnScale[Math.floor(Math.random() * allOnScale.length)];
+      }
+      const wL = leftBalls.reduce((a, c) => a + (c === fakeId ? weight : 1), 0);
+      const wR = rightBalls.reduce((a, c) => a + (c === fakeId ? weight : 1), 0);
+      if (Math.abs(wL - wR) < 0.001) {
         weight = isHeavy ? 0.9 : 1.1;
       }
+      return { fakeId, weight };
     }
 
-    if (leftBalls.length === 6 && rightBalls.length === 6) {
-      if (offScale.includes(fakeId) && allOnScale.length > 0) {
-        if (Math.random() > 0.5) {
+    if (leftBalls.length >= 2 && leftBalls.length === rightBalls.length) {
+      const wL = leftBalls.reduce((a, c) => a + (c === fakeId ? weight : 1), 0);
+      const wR = rightBalls.reduce((a, c) => a + (c === fakeId ? weight : 1), 0);
+      if (Math.abs(wL - wR) < 0.001) {
+        if (allOnScale.length > 0) {
           fakeId = allOnScale[Math.floor(Math.random() * allOnScale.length)];
+          weight = isHeavy ? 0.9 : 1.1;
         }
-        weight = Math.random() > 0.5 ? 1.1 : 0.9;
       }
+      return { fakeId, weight };
     }
+
     return { fakeId, weight };
   }
 
-  if (weighCount === 1 && _prevResults.length > 0) {
-    const firstResult = _prevResults[0].res;
-    const firstLeft = _prevResults[0].left;
-    const firstRight = _prevResults[0].right;
+  if (weighCount === 1 && prevResults.length > 0) {
+    const firstResult = prevResults[0].res;
 
-    if (firstResult === '>') {
-      const rightSideBalls = firstRight;
-      if (rightSideBalls.length >= 2) {
-        fakeId = rightSideBalls[Math.floor(Math.random() * rightSideBalls.length)];
-        weight = Math.random() > 0.3 ? 0.9 : 1.1;
-      } else if (offScale.length > 0) {
-        fakeId = offScale[0];
-      }
-    } else if (firstResult === '<') {
-      const leftSideBalls = firstLeft;
-      if (leftSideBalls.length >= 2) {
-        fakeId = leftSideBalls[Math.floor(Math.random() * leftSideBalls.length)];
-        weight = Math.random() > 0.3 ? 0.9 : 1.1;
-      } else if (offScale.length > 0) {
-        fakeId = offScale[0];
-      }
-    } else if (firstResult === '=' && firstLeft.length === 4) {
+    if (leftBalls.length === 3 && rightBalls.length === 3) {
       if (offScale.length > 0) {
         fakeId = offScale[Math.floor(Math.random() * offScale.length)];
-      } else if (allOnScale.length > 0) {
-        fakeId = allOnScale[Math.floor(Math.random() * allOnScale.length)];
       }
+      weight = isHeavy ? 1.1 : 0.9;
+      return { fakeId, weight };
     }
+
+    if (leftBalls.length === 2 && rightBalls.length === 2) {
+      if (offScale.length > 0) {
+        fakeId = offScale[Math.floor(Math.random() * offScale.length)];
+      } else {
+        if (firstResult === '>') {
+          fakeId = prevResults[0].right[Math.floor(Math.random() * prevResults[0].right.length)];
+        } else if (firstResult === '<') {
+          fakeId = prevResults[0].left[Math.floor(Math.random() * prevResults[0].left.length)];
+        } else {
+          fakeId = allOnScale[Math.floor(Math.random() * allOnScale.length)];
+        }
+      }
+      weight = Math.random() >= 0.5 ? 1.1 : 0.9;
+      return { fakeId, weight };
+    }
+
+    return { fakeId, weight };
+  }
+
+  if (weighCount === 2) {
     return { fakeId, weight };
   }
 
