@@ -20,8 +20,6 @@ interface GameContextType extends SaveData {
   setStatusText: (text: string) => void;
   soundEnabled: boolean;
   toggleSound: () => void;
-  markTutorialSeen: (gameId: string) => void;
-  isTutorialNeeded: (gameId: string) => boolean;
   pendingItems: Record<string, string>;
   setPendingItem: (itemId: string) => void;
   clearPendingItem: (levelIdx: number) => void;
@@ -249,21 +247,8 @@ const completeLevel = (opt: boolean) => {
       if (newVal && audioCtx && audioCtx.state === 'suspended') {
         audioCtx.resume();
       }
-      return newVal;
-    });
-  };
-
-  const markTutorialSeen = (gameId: string) => {
-    setState(prev => {
-      if (prev.tutorialSeen[gameId]) return prev;
-      const next = { ...prev, tutorialSeen: { ...prev.tutorialSeen, [gameId]: true } };
-      saveGameInternal(next);
-      return next;
-    });
-  };
-
-const isTutorialNeeded = (gameId: string) => {
-  return !state.tutorialSeen[gameId];
+return newVal;
+  });
 };
 
 const setPendingItem = (itemId: string) => {
@@ -282,7 +267,7 @@ return (
     <GameContext.Provider value={{
       ...state, loadGame, saveGame, resetJourney, resetLevelItems, goToChapter, completeLevel,
       useItem, useSkill, showToast, toast, toggleSidebar, isSidebarCollapsed, playSound, statusText, setStatusText,
-      soundEnabled, toggleSound, markTutorialSeen, isTutorialNeeded,
+      soundEnabled, toggleSound,
       pendingItems, setPendingItem, clearPendingItem
     }}>
       {children}

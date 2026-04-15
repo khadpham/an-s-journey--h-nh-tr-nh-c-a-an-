@@ -11,7 +11,6 @@ import GameHorses from './features/games/horses/GameHorses';
 import GameBalls from './features/games/balls/GameBalls';
 
 import { Sidebar, HeaderMobile } from './components/layout/MainLayout';
-import { TutorialModal } from './components/TutorialModal';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -621,11 +620,8 @@ const GameArea = () => {
           }`}>
             {toast.msg}
           </div>
-        )}
+)}
       </div>
-
-      {/* Tutorial Modal - Shows on first time playing each game */}
-      {story?.game && <TutorialModal gameId={story.game} />}
     </div>
   );
 };

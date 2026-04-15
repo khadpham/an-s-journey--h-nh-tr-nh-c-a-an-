@@ -27,6 +27,42 @@ const catAI_Adapt = (
   const allOnScale = [...leftBalls, ...rightBalls];
   const offScale = Array.from({ length: 12 }, (_, i) => i + 1).filter(id => !allOnScale.includes(id));
 
+  const getCandidatesFromResults = () => {
+    let candidates = new Set<number>();
+    for (let i = 1; i <= 12; i++) candidates.add(i);
+
+    prevResults.forEach(r => {
+      const leftSet = new Set(r.left);
+      const rightSet = new Set(r.right);
+      const leftSum = r.left.length + (leftSet.has(fakeId) ? (isHeavy ? 0.1 : -0.1) : 0);
+      const rightSum = r.right.length + (rightSet.has(fakeId) ? (isHeavy ? 0.1 : -0.1) : 0);
+
+      if (r.res === '=') {
+        const newCandidates = new Set<number>();
+        r.left.forEach(id => { if (candidates.has(id)) newCandidates.add(id); });
+        r.right.forEach(id => { if (candidates.has(id)) newCandidates.add(id); });
+        candidates = newCandidates;
+      } else if (r.res === '>') {
+        if (leftSum > rightSum) {
+          if (isHeavy) {
+            const newCandidates = new Set(candidates);
+            r.right.forEach(id => newCandidates.delete(id));
+            candidates = newCandidates;
+          }
+        }
+      } else if (r.res === '<') {
+        if (rightSum > leftSum) {
+          if (isHeavy) {
+            const newCandidates = new Set(candidates);
+            r.left.forEach(id => newCandidates.delete(id));
+            candidates = newCandidates;
+          }
+        }
+      }
+    });
+    return candidates;
+  };
+
   if (weighCount === 0) {
     if (leftBalls.length === 6 && rightBalls.length === 6) {
       if (offScale.length > 0) {
@@ -69,15 +105,31 @@ const catAI_Adapt = (
 
     if (leftBalls.length === 3 && rightBalls.length === 3) {
       if (offScale.length > 0) {
-        fakeId = offScale[Math.floor(Math.random() * offScale.length)];
+        const candidates = getCandidatesFromResults();
+        const offCandidates = [...offScale].filter(id => candidates.has(id));
+        if (offCandidates.length > 0) {
+          fakeId = offCandidates[Math.floor(Math.random() * offCandidates.length)];
+        } else {
+          fakeId = offScale[Math.floor(Math.random() * offScale.length)];
+        }
       }
       weight = isHeavy ? 1.1 : 0.9;
       return { fakeId, weight };
     }
 
     if (leftBalls.length === 2 && rightBalls.length === 2) {
+      const candidates = getCandidatesFromResults();
+      const onCandidates = allOnScale.filter(id => candidates.has(id));
+
       if (offScale.length > 0) {
-        fakeId = offScale[Math.floor(Math.random() * offScale.length)];
+        const offCandidates = [...offScale].filter(id => candidates.has(id));
+        if (offCandidates.length > 0) {
+          fakeId = offCandidates[Math.floor(Math.random() * offCandidates.length)];
+        } else if (onCandidates.length > 0) {
+          fakeId = onCandidates[Math.floor(Math.random() * onCandidates.length)];
+        }
+      } else if (onCandidates.length > 0) {
+        fakeId = onCandidates[Math.floor(Math.random() * onCandidates.length)];
       } else {
         if (firstResult === '>') {
           fakeId = prevResults[0].right[Math.floor(Math.random() * prevResults[0].right.length)];
