@@ -154,7 +154,7 @@ const catAI_Adapt = (
 };
 
 const GameBalls = forwardRef<GameBallsHandle, { onWin: (opt: boolean) => void, onFail: () => void }>(({ onWin, onFail }, ref) => {
-  const { playSound, showToast, usedItems, idx, resetLevelItems, setStatusText } = useGame();
+  const { playSound, showToast, usedItems, pendingItems, idx, resetLevelItems, setStatusText } = useGame();
   const isMounted = useRef(true);
 
   useImperativeHandle(ref, () => ({
@@ -186,7 +186,7 @@ const GameBalls = forwardRef<GameBallsHandle, { onWin: (opt: boolean) => void, o
   const [isBalanced, setIsBalanced] = useState(false);
 
   const remaining = 3 - logs.filter(l => l.type === 'weigh').length;
-  const isMagnetUsed = usedItems[idx]?.['magnet'];
+  const isMagnetUsed = usedItems[idx]?.['magnet'] || pendingItems[idx] === 'magnet';
 
   useEffect(() => {
     setStatusText(`Còn ${remaining} lượt`);

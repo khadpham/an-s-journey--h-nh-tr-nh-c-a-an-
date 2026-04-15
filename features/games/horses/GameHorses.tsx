@@ -4,7 +4,7 @@ import { useGame } from '../../../context/GameContext';
 type LogType = { type: 'race', id: number, rank: number[] } | { type: 'item', msg: string };
 
 const GameHorses = ({ onWin, onFail }: { onWin: (opt: boolean) => void, onFail: () => void }) => {
-    const { playSound, showToast, usedItems, idx, setStatusText } = useGame();
+  const { playSound, showToast, usedItems, pendingItems, idx, setStatusText } = useGame();
     
     // Function to generate horses with Randomized "Collision" logic
     const generateHorses = () => {
@@ -74,9 +74,9 @@ const GameHorses = ({ onWin, onFail }: { onWin: (opt: boolean) => void, onFail: 
     const [logs, setLogs] = useState<LogType[]>([]);
     const [top3, setTop3] = useState<{first: number|null, second: number|null, third: number|null}>({first: null, second: null, third: null});
 
-    const isGlassUsed = usedItems[idx]?.['glass']; 
+const isGlassUsed = usedItems[idx]?.['glass'] || pendingItems[idx] === 'glass';
 
-    useEffect(() => {
+  useEffect(() => {
         const raceCount = logs.filter(l => l.type === 'race').length;
         setStatusText(`Cuộc đua #${raceCount + 1}`);
     }, [logs, setStatusText]);
